@@ -1,0 +1,289 @@
+:root {
+  --bg-primary: #0d0d0d;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary: #262626;
+  --text: #e0e0e0;
+  --text-muted: #9ca3af;
+  --border: #333;
+  --accent: #3b82f6;
+  --accent-hover: #2563eb;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scrollbars: negro/oscuro para tema dark */
+* {
+  scrollbar-color: var(--border) var(--bg-primary);
+  scrollbar-width: thin;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+*::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--bg-tertiary);
+}
+
+/* Ocultar scrollbar en la columna de números de línea del editor */
+.editor-line-numbers {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.editor-line-numbers::-webkit-scrollbar {
+  display: none;
+}
+
+/* Preview pane content */
+.preview-content h1, .preview-content h2, .preview-content h3 {
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+}
+.preview-content h1 { font-size: 1.75rem; }
+.preview-content h2 { font-size: 1.4rem; }
+.preview-content h3 { font-size: 1.15rem; }
+.preview-content p { margin: 0.75em 0; line-height: 1.6; }
+.preview-content ul, .preview-content ol { margin: 0.75em 0; padding-left: 1.5em; }
+.preview-content code { background: var(--bg-tertiary); padding: 0.2em 0.4em; border-radius: 4px; font-size: 0.9em; }
+.preview-content pre { background: var(--bg-tertiary); padding: 1em; border-radius: 6px; overflow: auto; }
+.preview-content pre code { background: none; padding: 0; }
+.preview-content a { color: var(--accent); }
+.preview-content blockquote { border-left: 4px solid var(--border); margin: 0.75em 0; padding-left: 1em; color: var(--text-muted); }
+.preview-content img { max-width: 100%; height: auto; }
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Code Editor Syntax Highlighting */
+.w-tc-editor-text, .w-tc-editor-preview {
+  min-height: 100% !important;
+}
+
+/*
+ * CRÍTICO: El preview layer NUNCA debe bloquear los clics del textarea.
+ * NO usar position/z-index aquí porque rompe el overlay del CodeEditor.
+ * El componente ya maneja correctamente el stacking con position: absolute.
+ */
+.w-tc-editor-preview {
+  pointer-events: none !important;
+}
+
+.w-tc-editor-text {
+  color: var(--text) !important;
+}
+
+.w-tc-editor {
+  background-color: var(--bg-primary) !important;
+  color: var(--text) !important;
+  caret-color: var(--text) !important;
+}
+
+/* N8n Variables Highlighting */
+.w-tc-editor-preview .token.n8n-variable {
+  color: #10b981 !important;
+  background-color: rgba(16, 185, 129, 0.15);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+  font-weight: 500;
+}
+
+.w-tc-editor-preview .token.title {
+  color: #60a5fa !important;
+  font-weight: 600;
+}
+
+.w-tc-editor-preview .token.bold {
+  color: #fbbf24 !important;
+  font-weight: bold;
+}
+
+.w-tc-editor-preview .token.italic {
+  color: #a78bfa !important;
+  font-style: italic;
+}
+
+.w-tc-editor-preview .token.url,
+.w-tc-editor-preview .token.link {
+  color: #34d399 !important;
+  text-decoration: underline;
+}
+
+.w-tc-editor-preview .token.code,
+.w-tc-editor-preview .token.code-snippet {
+  color: #fb923c !important;
+  background-color: rgba(251, 146, 60, 0.1);
+  padding: 0.1em 0.3em;
+  border-radius: 3px;
+}
+
+.w-tc-editor-preview .token.list,
+.w-tc-editor-preview .token.hr,
+.w-tc-editor-preview .token.blockquote {
+  color: #9ca3af !important;
+}
+
+.w-tc-editor-preview .token.strike {
+  color: #ef4444 !important;
+  text-decoration: line-through;
+}
+
+.w-tc-editor-preview .token.table {
+  color: #c084fc !important;
+}
+
+.w-tc-editor-preview .token.punctuation {
+  color: #6b7280 !important;
+}
+
+/* Split Layout Controls */
+.split-controls {
+  position: absolute;
+  top: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+  max-height: calc(100vh - 40px);
+  padding: 4px 0;
+}
+
+/* Centrado (vista split) */
+.split-controls-center {
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* A la izquierda (vista solo editor) */
+.split-controls-left {
+  left: 50%;
+  transform: translate(-100%, -50%);
+  margin-left: -6px;
+}
+
+/* A la derecha (vista solo preview) */
+.split-controls-right {
+  left: 50%;
+  transform: translate(0%, -50%);
+  margin-left: 6px;
+}
+
+.split-control-button {
+  background: rgba(13, 13, 13, 0.9);
+  border: 1px solid #01b7af;
+  border-radius: 4px;
+  padding: 6px;
+  cursor: pointer;
+  color: #01b7af;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  width: 32px;
+  height: 32px;
+}
+
+.split-control-button:hover {
+  background: #01b7af;
+  color: #0d0d0d;
+  transform: scale(1.1);
+}
+
+.split-control-button:active {
+  transform: scale(0.95);
+}
+
+.split-control-button svg {
+  pointer-events: none;
+}
+
+/* Padding para evitar superposición con los botones de control */
+.cm-editor .cm-scroller {
+  padding-right: 50px !important;
+}
+
+.preview-content {
+  padding-right: 50px !important;
+  padding-left: 50px !important;
+}
+
+/* Gamification Animations */
+@keyframes toast-slide-in {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes toast-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(50%);
+  }
+}
+
+@keyframes xp-pulse {
+  0% { box-shadow: 0 0 0 0 rgba(1, 183, 175, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(1, 183, 175, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(1, 183, 175, 0); }
+}
+
+@keyframes level-up {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.achievement-toast {
+  animation: toast-slide-in 0.3s ease-out;
+}
+
+.xp-bar-fill {
+  animation: xp-pulse 1s ease-out;
+}
+
+.xp-pulse {
+  animation: xp-pulse 0.6s ease-out;
+}
+
+.level-up {
+  animation: level-up 0.5s ease-out;
+}
