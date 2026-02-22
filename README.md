@@ -7,7 +7,7 @@
 
 Editor Markdown profesional con preview en tiempo real y sistema de gamificación integrado para motivar tu productividad en la escritura.
 
-## ✨ Características
+## ✨Características
 
 ### Editor Profesional
 - 📝 **Editor CodeMirror 6** - Experiencia de edición avanzada
