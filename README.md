@@ -5,26 +5,26 @@
 ![React](https://img.shields.io/badge/react-18.3.1-61dafb.svg)
 ![TypeScript](https://img.shields.io/badge/typescript-5.6.2-3178c6.svg)
 
-Editor Markdown profesional con preview en tiempo real y sistema de gamificación integrado para motivar tu productividad en la escritura.
+Editor Markdown profesional con preview en tiempo real y sistema de gamificación bastante dificil integrado para motivar tu productividad en la escritura.
 
-## ✨Características
+## Características
 
 ### Editor Profesional
-- 📝 **Editor CodeMirror 6** - Experiencia de edición avanzada
-- 👁️ **Preview en tiempo real** - Visualiza tu Markdown instantáneamente
-- 🔄 **Scroll sincronizado** - El preview sigue tu posición en el editor
-- 🎨 **Tema One Dark** - Interfaz oscura agradable a la vista
-- 🌈 **Syntax highlighting** - Resaltado de sintaxis para múltiples lenguajes
-- 📍 **Tracking de posición** - Línea y columna en tiempo real
+-  **Editor CodeMirror 6** - Experiencia de edición avanzada
+-  **Preview en tiempo real** - Visualiza tu Markdown instantáneamente
+-  **Scroll sincronizado** - El preview sigue tu posición en el editor
+-  **Tema One Dark** - Interfaz oscura agradable a la vista
+-  **Syntax highlighting** - Resaltado de sintaxis para múltiples lenguajes
+-  **Tracking de posición** - Línea y columna en tiempo real
 
 ### Sistema de Gamificación
-- ⭐ **Sistema de XP y niveles** - Gana experiencia escribiendo
-- 🏆 **Logros desbloqueables** - Colecciona badges por tus logros
-- 🔥 **Rachas de escritura** - Mantén tu racha diaria de escritura
-- 📊 **Estadísticas detalladas** - Palabras escritas, tiempo, sesiones
-- 🎉 **Notificaciones** - Toasts cuando desbloqueas logros
-- 📅 **Calendario de rachas** - Visualiza tu consistencia
-- 💾 **Persistencia local** - Tu progreso se guarda automáticamente
+-  **Sistema de XP y niveles** - Gana experiencia escribiendo
+-  **Logros desbloqueables** - Colecciona badges por tus logros
+-  **Rachas de escritura** - Mantén tu racha diaria de escritura
+-  **Estadísticas detalladas** - Palabras escritas, tiempo, sesiones
+-  **Notificaciones** - Toasts cuando desbloqueas logros
+-  **Calendario de rachas** - Visualiza tu consistencia
+-  **Persistencia local** - Tu progreso se guarda automáticamente
 
 ## 🚀 Inicio Rápido
 
@@ -136,22 +136,22 @@ braveditor/
 - El calendario muestra tu historial
 - Las rachas se rompen si no escribes en 24 horas
 
-## 🔒 Seguridad
+##  Seguridad
 
 - Todo HTML generado desde Markdown es sanitizado con **DOMPurify**
 - Sin evaluación de código del usuario
 - Validación de inputs
 
-## 📝 Licencia
+##  Licencia
 
 Apache-2.0 © [Carlos Vera](https://braveslab.com)
 
-## 👥 Autores
+##  Autores
 
 - **Carlos Vera** - [carlos@braveslab.com](mailto:carlos@braveslab.com)
 - **Jean Paul Vera Bravo** - Contributor
 
-## 🐛 Reportar Problemas
+##  Reportar Problemas
 
 Si encuentras un bug o tienes una sugerencia, por favor abre un issue en:
 https://github.com/Carlos-Vera/Braveditor/issues
@@ -166,7 +166,7 @@ Las contribuciones son bienvenidas. Por favor:
 4. Push a la rama (`git push origin feature/AmazingFeature`)
 5. Abre un Pull Request
 
-## 📚 Documentación Adicional
+##  Documentación Adicional
 
 - [CLAUDE.md](./CLAUDE.md) - Convenciones del proyecto
 - [CHANGELOG.md](./CHANGELOG.md) - Historial de cambios
