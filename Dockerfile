@@ -2,13 +2,10 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Establecer NODE_ENV para optimizaciones
-ENV NODE_ENV=production
-
 # Copiar archivos de dependencias
 COPY package*.json ./
 
-# Instalar dependencias (usa npm ci para builds reproducibles)
+# Instalar todas las dependencias (incluyendo devDependencies para el build)
 RUN npm ci --legacy-peer-deps
 
 # Copiar código fuente
