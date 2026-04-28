@@ -179,4 +179,4 @@ Las contribuciones son bienvenidas. Por favor:
 
 ---
 
-Hecho con ❤️ por BravesLab
+Hecho con ❤️ por BravesLab.
