@@ -3,6 +3,7 @@
   "private": true,
   "version": "2.1.0",
   "type": "module",
+  "packageManager": "pnpm@10.33.2",
   "description": "Editor Markdown profesional con preview en tiempo real y sistema de gamificación integrado",
   "author": {
     "name": "Carlos Vera",

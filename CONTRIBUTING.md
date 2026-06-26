@@ -10,8 +10,8 @@ Gracias por querer contribuir. Lee esta guía antes de abrir una Pull Request pa
 ```bash
 git clone https://github.com/Carlos-Vera/Braveditor.git
 cd braveditor
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 ## Flujo de trabajo
@@ -23,8 +23,8 @@ npm run dev
 3. Escribe tu código siguiendo las convenciones de abajo
 4. Verifica que el proyecto compila y pasa el linter antes de abrir la PR:
    ```bash
-   npm run build
-   npm run lint
+   pnpm build
+   pnpm lint
    ```
 5. Abre la PR contra `main` con una descripción clara de qué hace y por qué
 
@@ -134,8 +134,8 @@ Las siguientes condiciones resultan en cierre inmediato de la PR sin revisión a
 
 | Condición | Por qué |
 |-----------|---------|
-| `npm run build` falla | El código no compila — no hay nada que revisar |
-| `npm run lint` tiene errores | Viola las reglas base del proyecto |
+| `pnpm build` falla | El código no compila — no hay nada que revisar |
+| `pnpm lint` tiene errores | Viola las reglas base del proyecto |
 | Uso de `any` en TypeScript | Destruye la seguridad de tipos del proyecto |
 | HTML renderizado sin pasar por `DOMPurify` | Vulnerabilidad de seguridad (XSS) |
 | Cambios en `package.json` o dependencias sin que la PR los justifique explícitamente | Riesgo de supply chain y builds rotos |
@@ -150,9 +150,9 @@ Si tu PR incurre en alguno de estos puntos recibirás un comentario explicando e
 
 ## Checklist antes de abrir una PR
 
-- [ ] `npm run build` pasa sin errores
-- [ ] `npm run lint` pasa sin warnings
+- [ ] `pnpm build` pasa sin errores
+- [ ] `pnpm lint` pasa sin warnings
 - [ ] No hay type assertions (`as`) sin justificación
-- [ ] No hay cambios accidentales en `package.json` o `package-lock.json` ajenos a la feature
+- [ ] No hay cambios accidentales en `package.json` o `pnpm-lock.yaml` ajenos a la feature
 - [ ] El HTML generado dinámicamente pasa por DOMPurify
 - [ ] Los componentes nuevos tienen tipos explícitos en sus props

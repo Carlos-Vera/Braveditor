@@ -2,17 +2,20 @@
 FROM node:20-alpine AS build
 WORKDIR /app
 
-# Copiar archivos de dependencias
-COPY package*.json ./
+# Habilitar pnpm vía corepack
+RUN corepack enable
+
+# Copiar archivos de dependencias (.npmrc fija node-linker=hoisted)
+COPY package.json pnpm-lock.yaml .npmrc ./
 
 # Instalar todas las dependencias (incluyendo devDependencies para el build)
-RUN npm ci --legacy-peer-deps
+RUN pnpm install --frozen-lockfile
 
 # Copiar código fuente
 COPY . .
 
 # Build de producción
-RUN npm run build
+RUN pnpm build
 
 # Stage 2: Serve con Nginx
 FROM nginx:stable-alpine

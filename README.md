@@ -31,7 +31,7 @@ Editor Markdown profesional con preview en tiempo real y sistema de gamificació
 ### Prerrequisitos
 
 - Node.js 18+
-- npm o yarn
+- pnpm
 
 ### Instalación
 
@@ -43,10 +43,10 @@ git clone https://github.com/Carlos-Vera/Braveditor.git
 cd braveditor
 
 # Instalar dependencias
-npm install
+pnpm install
 
 # Iniciar servidor de desarrollo
-npm run dev
+pnpm dev
 ```
 
 La aplicación estará disponible en `http://localhost:5173`
@@ -54,10 +54,10 @@ La aplicación estará disponible en `http://localhost:5173`
 ## 📦 Scripts Disponibles
 
 ```bash
-npm run dev      # Inicia el servidor de desarrollo
-npm run build    # Compila TypeScript y construye para producción
-npm run lint     # Ejecuta ESLint para verificar código
-npm run preview  # Preview del build de producción
+pnpm dev      # Inicia el servidor de desarrollo
+pnpm build    # Compila TypeScript y construye para producción
+pnpm lint     # Ejecuta ESLint para verificar código
+pnpm preview  # Preview del build de producción
 ```
 
 ## 🛠️ Stack Tecnológico
