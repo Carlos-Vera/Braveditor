@@ -22,21 +22,6 @@ export function getTotalLines(text: string): number {
 }
 
 /**
- * Información de selección: líneas y caracteres seleccionados.
- */
-export function getSelectionInfo(
-  text: string,
-  start: number,
-  end: number
-): { lineStart: number; lineEnd: number; selectedLines: number; selectedChars: number } {
-  const lineStart = getLineColumn(text, start).line
-  const lineEnd = getLineColumn(text, end).line
-  const selectedLines = Math.max(1, lineEnd - lineStart + 1)
-  const selectedChars = Math.max(0, end - start)
-  return { lineStart, lineEnd, selectedLines, selectedChars }
-}
-
-/**
  * Tamaño en bytes del texto (UTF-8).
  */
 export function getByteLength(text: string): number {

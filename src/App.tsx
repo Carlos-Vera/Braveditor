@@ -1,5 +1,5 @@
 import { useRef, useState, useCallback, useMemo, useEffect } from 'react'
-import { useMarkdown } from './hooks/useMarkdown'
+import { useMarkdown, INITIAL } from './hooks/useMarkdown'
 import { useGamification } from './hooks/useGamification'
 import { Toolbar } from './components/Toolbar'
 import { SplitLayout } from './components/SplitLayout'
@@ -14,15 +14,6 @@ import { downloadMarkdown, readFileAsText } from './utils/fileHandling'
 import { getLineColumn, getTotalLines, getByteLength, getWordCount, getPreviewStats } from './utils/editorPosition'
 import { getStreakMultiplier, todayStr } from './utils/gamification'
 import type { EditorSelection } from './types'
-
-const INITIAL = `# Hola Braveditor
-
-Escribe **Markdown** aquí. La vista previa se actualiza en tiempo real.
-
-- Lista
-- De
-- Items
-`
 
 export default function App() {
   const { raw, html, setContent } = useMarkdown()

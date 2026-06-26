@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import { markdownToHtmlAsync } from '../utils/markdown'
 import { loadDraft, saveDraft } from '../utils/fileHandling'
 
-const INITIAL = `# Hola Braveditor
+export const INITIAL = `# Hola Braveditor
 
 Escribe **Markdown** aquí. La vista previa se actualiza en tiempo real.
 

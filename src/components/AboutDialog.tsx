@@ -273,11 +273,8 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
               <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
                 <h4 style={{ fontSize: 15, marginBottom: 12 }}>Otras dependencias:</h4>
                 <ul style={{ color: 'var(--text-secondary)', fontSize: 13, marginLeft: 20 }}>
-                  <li>@codemirror/theme-one-dark - Tema oscuro para CodeMirror</li>
-                  <li>@codemirror/language-data - Datos de lenguajes</li>
                   <li>@uiw/codemirror-themes - Temas adicionales</li>
                   <li>@lezer/highlight - Sistema de highlighting</li>
-                  <li>refractor - Syntax highlighting adicional</li>
                 </ul>
               </div>
             </div>
