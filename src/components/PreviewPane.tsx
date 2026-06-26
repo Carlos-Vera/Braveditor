@@ -62,7 +62,7 @@ export const PreviewPane = forwardRef<HTMLDivElement, PreviewPaneProps>(
     }, [html])
 
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'auto' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'auto', background: 'var(--bg-secondary)' }}>
         <div
           ref={containerRef}
           className="preview-content"
@@ -72,7 +72,6 @@ export const PreviewPane = forwardRef<HTMLDivElement, PreviewPaneProps>(
             flex: 1,
             padding: '1rem',
             overflow: 'auto',
-            background: 'var(--bg-secondary)',
           }}
           dangerouslySetInnerHTML={{ __html: html || '<p class="preview-placeholder" style="color:var(--text-muted)">Tu vista previa aparecerá aquí.</p>' }}
         />
