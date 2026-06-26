@@ -130,10 +130,16 @@ export function Toolbar({
         <img
           src="/Braves.svg"
           alt="Braveditor"
-          style={{ height: 28, marginRight: 8, display: 'block', cursor: 'pointer' }}
+          style={{ height: 28, display: 'block', cursor: 'pointer' }}
           onClick={() => setShowAboutDialog(true)}
           title="Acerca de BraveEditor"
         />
+        <span
+          style={{ marginLeft: -10, alignSelf: 'flex-start', marginTop: 6, fontSize: 11, color: 'var(--brave-cyan)' }}
+          title="Versión de BraveEditor"
+        >
+          <span style={{ fontWeight: 700, fontStyle: 'italic' }}>Editor</span> v{__APP_VERSION__}
+        </span>
         <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
           {FORMAT_BUTTONS.map(({ action, label, prefix, suffix }) => (
             <button
