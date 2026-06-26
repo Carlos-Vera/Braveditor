@@ -15,6 +15,7 @@ type ToolbarProps = {
   onFormatAction?: (action: ToolbarAction) => void
   onShowAchievements?: () => void
   streakWidget?: React.ReactNode
+  filename?: string
 }
 
 const FORMAT_BUTTONS: { action: ToolbarAction; label: string; prefix: string; suffix: string }[] = [
@@ -94,6 +95,7 @@ export function Toolbar({
   onFormatAction,
   onShowAchievements,
   streakWidget,
+  filename,
 }: ToolbarProps) {
   const [showSyntaxGuide, setShowSyntaxGuide] = useState(false)
   const [showAboutDialog, setShowAboutDialog] = useState(false)
@@ -142,21 +144,41 @@ export function Toolbar({
               onMouseOut={(e) => Object.assign(e.currentTarget.style, btnStyle)}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => { onFormat(prefix, suffix); onFormatAction?.(action) }}
-              title={label}
-              aria-label={label}
+              aria-label={`Agregar ${label}`}
             >
               {label}
             </button>
           ))}
         </div>
-        <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+        {filename && (
+          <div
+            style={{
+              marginLeft: 'auto',
+              display: 'flex',
+              alignItems: 'center',
+              gap: 6,
+              maxWidth: 240,
+              color: 'var(--text-muted)',
+              fontSize: 13,
+            }}
+            title={filename}
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+              <path d="M14 2v6h6" />
+            </svg>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              {filename}
+            </span>
+          </div>
+        )}
+        <div style={{ marginLeft: filename ? 0 : 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
           {streakWidget}
           {onShowAchievements && (
             <button
               type="button"
               style={btnStyle}
               onClick={onShowAchievements}
-              title="Logros y gamificación"
               aria-label="Logros y gamificación"
             >
               🏆
@@ -166,7 +188,6 @@ export function Toolbar({
             type="button"
             style={btnStyle}
             onClick={() => setShowSyntaxGuide(true)}
-            title="Guía de sintaxis Markdown"
             aria-label="Guía de sintaxis Markdown"
           >
             Sintaxis MD
@@ -206,19 +227,18 @@ export function Toolbar({
               })
             }
             onClick={() => onSyncScrollChange(!syncScroll)}
-            title="Sincronizar scroll"
             aria-label="Sincronizar scroll"
             aria-pressed={syncScroll}
           >
             ⇅
           </button>
-          <button type="button" style={btnStyle} onClick={onNew} title="Nuevo" aria-label="Nuevo documento">
+          <button type="button" style={btnStyle} onClick={onNew} aria-label="Nuevo documento">
             Nuevo
           </button>
-          <button type="button" style={btnStyle} onClick={onOpenClick} title="Abrir" aria-label="Abrir archivo">
+          <button type="button" style={btnStyle} onClick={onOpenClick} aria-label="Abrir archivo">
             Abrir
           </button>
-          <button type="button" style={btnStyle} onClick={onSave} title="Guardar" aria-label="Guardar archivo">
+          <button type="button" style={btnStyle} onClick={onSave} aria-label="Guardar archivo">
             Guardar
           </button>
         </div>

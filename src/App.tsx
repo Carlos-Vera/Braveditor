@@ -31,7 +31,7 @@ export default function App() {
   const previewRef = useRef<HTMLDivElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [selection, setSelection] = useState<EditorSelection>({ start: 0, end: 0 })
-  const [filename, setFilename] = useState('documento.md')
+  const [filename, setFilename] = useState(() => localStorage.getItem('braveditor-filename') ?? 'documento.md')
   const [copyFeedback, setCopyFeedback] = useState(false)
   const [syncScroll, setSyncScroll] = useState(true)
   const [showToolbar, setShowToolbar] = useState(true)
@@ -134,6 +134,11 @@ export default function App() {
 
   const previewStats = useMemo(() => getPreviewStats(html), [html])
 
+  // Persistir el nombre de archivo junto al draft
+  useEffect(() => {
+    try { localStorage.setItem('braveditor-filename', filename) } catch { /* ignore */ }
+  }, [filename])
+
   // Track words for gamification whenever word count changes
   useEffect(() => {
     trackWords(codeStats.words)
@@ -180,6 +185,7 @@ export default function App() {
           onFormatAction={trackFormat}
           onShowAchievements={() => setShowAchievements(true)}
           streakWidget={streakWidget}
+          filename={filename}
         />
       )}
       <div style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}>
