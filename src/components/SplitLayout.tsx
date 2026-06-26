@@ -87,7 +87,6 @@ export function SplitLayout({ left, right, defaultRatio = 0.5, showToolbar, onTo
           <div className="split-controls split-controls-center">
             <button
               onClick={onToggleToolbar}
-              title={showToolbar ? "Ocultar barra de navegación" : "Mostrar barra de navegación"}
               aria-label={showToolbar ? "Ocultar barra de navegación" : "Mostrar barra de navegación"}
               className="split-control-button"
             >
@@ -107,18 +106,16 @@ export function SplitLayout({ left, right, defaultRatio = 0.5, showToolbar, onTo
             </button>
             <button
               onClick={() => handleToggleView('editor')}
-              title="Vista solo editor"
               aria-label="Mostrar solo editor"
               className="split-control-button"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="2" y="2" width="5" height="12" fill="currentColor" />
+                <rect x="9" y="2" width="5" height="12" fill="currentColor" />
               </svg>
             </button>
             <button
               onClick={onCopy}
-              title={copyFeedback ? "Copiado" : "Copiar Markdown"}
-              aria-label={copyFeedback ? "Copiado" : "Copiar código Markdown"}
+              aria-label={copyFeedback ? "Copiado" : "Copiar todo el Código Markdown"}
               className="split-control-button"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -134,17 +131,15 @@ export function SplitLayout({ left, right, defaultRatio = 0.5, showToolbar, onTo
             </button>
             <button
               onClick={() => handleToggleView('preview')}
-              title="Vista solo preview"
               aria-label="Mostrar solo preview"
               className="split-control-button"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="9" y="2" width="5" height="12" fill="currentColor" />
+                <rect x="2" y="2" width="5" height="12" fill="currentColor" />
               </svg>
             </button>
             <button
               onClick={onToggleFooter}
-              title={showFooter ? "Ocultar barra de estado" : "Mostrar barra de estado"}
               aria-label={showFooter ? "Ocultar barra de estado" : "Mostrar barra de estado"}
               className="split-control-button"
             >
@@ -178,7 +173,6 @@ export function SplitLayout({ left, right, defaultRatio = 0.5, showToolbar, onTo
           <div className={`split-controls ${viewMode === 'editor' ? 'split-controls-left' : 'split-controls-right'}`}>
             <button
               onClick={onToggleToolbar}
-              title={showToolbar ? "Ocultar barra de navegación" : "Mostrar barra de navegación"}
               aria-label={showToolbar ? "Ocultar barra de navegación" : "Mostrar barra de navegación"}
               className="split-control-button"
             >
@@ -198,8 +192,7 @@ export function SplitLayout({ left, right, defaultRatio = 0.5, showToolbar, onTo
             </button>
             <button
               onClick={onCopy}
-              title={copyFeedback ? "Copiado" : "Copiar Markdown"}
-              aria-label={copyFeedback ? "Copiado" : "Copiar código Markdown"}
+              aria-label={copyFeedback ? "Copiado" : "Copiar todo el Código Markdown"}
               className="split-control-button"
             >
               <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -215,7 +208,6 @@ export function SplitLayout({ left, right, defaultRatio = 0.5, showToolbar, onTo
             </button>
             <button
               onClick={() => handleToggleView('split')}
-              title="Vista dividida"
               aria-label="Mostrar vista dividida"
               className="split-control-button"
             >
@@ -226,7 +218,6 @@ export function SplitLayout({ left, right, defaultRatio = 0.5, showToolbar, onTo
             </button>
             <button
               onClick={onToggleFooter}
-              title={showFooter ? "Ocultar barra de estado" : "Mostrar barra de estado"}
               aria-label={showFooter ? "Ocultar barra de estado" : "Mostrar barra de estado"}
               className="split-control-button"
             >

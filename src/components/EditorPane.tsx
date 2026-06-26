@@ -59,6 +59,34 @@ type EditorPaneProps = {
   syncScroll?: boolean
 }
 
+type Anchor = { line: number; top: number }
+
+// Interpola la posición vertical del preview para una línea de origen dada.
+function lineToTop(anchors: Anchor[], lineF: number): number {
+  if (lineF <= anchors[0].line) return anchors[0].top
+  for (let i = 0; i < anchors.length - 1; i++) {
+    const a = anchors[i], b = anchors[i + 1]
+    if (lineF < b.line) {
+      const t = (lineF - a.line) / (b.line - a.line || 1)
+      return a.top + t * (b.top - a.top)
+    }
+  }
+  return anchors[anchors.length - 1].top
+}
+
+// Interpola la línea de origen para una posición vertical del preview.
+function topToLine(anchors: Anchor[], top: number): number {
+  if (top <= anchors[0].top) return anchors[0].line
+  for (let i = 0; i < anchors.length - 1; i++) {
+    const a = anchors[i], b = anchors[i + 1]
+    if (top < b.top) {
+      const t = (top - a.top) / (b.top - a.top || 1)
+      return a.line + t * (b.line - a.line)
+    }
+  }
+  return anchors[anchors.length - 1].line
+}
+
 const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(function EditorPane(
   { value, onChange, onSelect, previewRef, syncScroll = false },
   ref
@@ -99,41 +127,68 @@ const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(functi
     }),
   ]
 
-  // Sincronizar scroll con preview (separado del updateListener)
+  // Sincronizar scroll en ambos sentidos, anclado a la línea de origen
   useEffect(() => {
     if (!syncScroll || !editorReady || !previewRef?.current || !editorViewRef.current) return
 
-    const scrollDOM = editorViewRef.current.scrollDOM
+    const view = editorViewRef.current
+    const editorDOM = view.scrollDOM
+    const previewDOM = previewRef.current
     let rafId: number | null = null
 
-    const handleScroll = () => {
-      if (rafId) return // Ya hay un requestAnimationFrame pendiente
+    // Posición (relativa al contenido del preview) de cada bloque con data-source-line
+    const getAnchors = (): Anchor[] => {
+      const base = previewDOM.getBoundingClientRect().top - previewDOM.scrollTop
+      const anchors: Anchor[] = []
+      previewDOM.querySelectorAll<HTMLElement>('[data-source-line]').forEach((el) => {
+        const line = Number(el.dataset.sourceLine)
+        if (Number.isFinite(line)) anchors.push({ line, top: el.getBoundingClientRect().top - base })
+      })
+      return anchors
+    }
 
+    const editorToPreview = () => {
+      const anchors = getAnchors()
+      if (!anchors.length) return
+      const block = view.lineBlockAtHeight(editorDOM.scrollTop)
+      const line = view.state.doc.lineAt(block.from).number
+      const frac = block.height > 0 ? Math.min(1, Math.max(0, (editorDOM.scrollTop - block.top) / block.height)) : 0
+      previewDOM.scrollTop = lineToTop(anchors, line + frac)
+    }
+
+    const previewToEditor = () => {
+      const anchors = getAnchors()
+      if (!anchors.length) return
+      const doc = view.state.doc
+      const lineF = topToLine(anchors, previewDOM.scrollTop)
+      const lineInt = Math.min(doc.lines, Math.max(1, Math.floor(lineF)))
+      const block = view.lineBlockAt(doc.line(lineInt).from)
+      editorDOM.scrollTop = block.top + (lineF - lineInt) * block.height
+    }
+
+    // isScrollingRef evita el bucle de eco entre ambos paneles
+    const sync = (fn: () => void) => () => {
+      if (rafId) return
       rafId = requestAnimationFrame(() => {
         rafId = null
-
-        if (isScrollingRef.current || !previewRef?.current) {
+        if (isScrollingRef.current) {
           isScrollingRef.current = false
           return
         }
-
-        const denom = scrollDOM.scrollHeight - scrollDOM.clientHeight
-        const scrollPercentage = denom > 0 ? scrollDOM.scrollTop / denom : 0
-
         isScrollingRef.current = true
-        previewRef.current.scrollTop = scrollPercentage * (previewRef.current.scrollHeight - previewRef.current.clientHeight)
-
-        // Reset flag después de un breve delay
-        setTimeout(() => {
-          isScrollingRef.current = false
-        }, 50)
+        fn()
+        setTimeout(() => { isScrollingRef.current = false }, 50)
       })
     }
 
-    scrollDOM?.addEventListener('scroll', handleScroll, { passive: true })
+    const onEditorScroll = sync(editorToPreview)
+    const onPreviewScroll = sync(previewToEditor)
+    editorDOM.addEventListener('scroll', onEditorScroll, { passive: true })
+    previewDOM.addEventListener('scroll', onPreviewScroll, { passive: true })
 
     return () => {
-      scrollDOM?.removeEventListener('scroll', handleScroll)
+      editorDOM.removeEventListener('scroll', onEditorScroll)
+      previewDOM.removeEventListener('scroll', onPreviewScroll)
       if (rafId) cancelAnimationFrame(rafId)
     }
   }, [syncScroll, editorReady, previewRef])

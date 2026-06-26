@@ -81,7 +81,7 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
             </a>
             <div>
               <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>BraveEditor</h2>
-              <p style={{ margin: 0, fontSize: 12, color: 'var(--text-secondary)' }}>Versión 1.0.0</p>
+              <p style={{ margin: 0, fontSize: 12, color: 'var(--text-secondary)' }}>Versión {__APP_VERSION__}</p>
             </div>
           </div>
           <button
