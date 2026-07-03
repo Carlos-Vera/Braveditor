@@ -265,8 +265,8 @@ export function Toolbar({
               style={{ padding: '4px 6px' }}
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => setShowMermaidDialog(true)}
-              title="Más tipos de códigos Mermaid"
-              aria-label="Más tipos de códigos Mermaid"
+              title="Más tipos de código Mermaid"
+              aria-label="Más tipos de código Mermaid"
               aria-haspopup="dialog"
             >
               ▾

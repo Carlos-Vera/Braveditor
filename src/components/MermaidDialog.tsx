@@ -27,7 +27,8 @@ export function MermaidDialog({ isOpen, onClose, onInsert }: MermaidDialogProps)
     mermaid
       .render(id, selected.def)
       .then(({ svg }) => {
-        if (!cancelled) setPreview({ tpl: selected, svg })
+        if (cancelled) document.getElementById(id)?.remove()
+        else setPreview({ tpl: selected, svg })
       })
       .catch((err: unknown) => {
         // mermaid deja un svg de error suelto en el DOM al fallar el parseo
@@ -38,6 +39,16 @@ export function MermaidDialog({ isOpen, onClose, onInsert }: MermaidDialogProps)
       cancelled = true
     }
   }, [isOpen, selected])
+
+  // Escape cierra el diálogo (patrón WAI-ARIA para modales)
+  useEffect(() => {
+    if (!isOpen) return
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', handler)
+    return () => document.removeEventListener('keydown', handler)
+  }, [isOpen, onClose])
 
   // El preview vigente es el de la plantilla seleccionada; si aún no llegó, está cargando
   const current = preview !== null && preview.tpl === selected ? preview : null
@@ -63,6 +74,7 @@ export function MermaidDialog({ isOpen, onClose, onInsert }: MermaidDialogProps)
     >
       <div
         role="dialog"
+        aria-modal="true"
         aria-label="Insertar diagrama Mermaid"
         style={{
           background: 'var(--bg-primary)',
