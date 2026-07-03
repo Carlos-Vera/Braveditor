@@ -141,6 +141,25 @@ body {
 .preview-content th { background: var(--bg-tertiary); font-weight: 600; }
 .preview-content tr:nth-child(even) td { background: rgba(255, 255, 255, 0.02); }
 
+/* Botón estándar de toolbars y diálogos */
+.btn {
+  background: var(--bg-tertiary);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+}
+.btn:hover {
+  background: var(--brave-cyan);
+  color: #0d0d0d;
+  border-color: var(--brave-cyan);
+}
+.btn-on { background: var(--border); }
+.btn-dim { opacity: 0.6; }
+
 .sr-only {
   position: absolute;
   width: 1px;
@@ -245,6 +264,11 @@ header[role="toolbar"] button[aria-label]:hover::after {
   transform: translateY(-50%);
 }
 
+/* Ocultar el tooltip cuando el botón tiene su menú abierto (ej. Mermaid) */
+header[role="toolbar"] button[aria-expanded="true"]:hover::after {
+  display: none;
+}
+
 /* Padding para evitar superposición con los botones de control */
 .cm-editor .cm-scroller {
   padding-right: 50px !important;
@@ -340,4 +364,167 @@ header[role="toolbar"] button[aria-label]:hover::after {
 
 .copy-code-button.copied {
   color: #10b981;
+}
+
+/* Mermaid diagrams: integrados en el preview, con borde cian brave y glow suave */
+.mermaid-diagram {
+  position: relative;
+  margin: 1em 0;
+  padding: 1rem;
+  border: 1px solid rgba(1, 183, 175, 0.45);
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
+}
+
+.mermaid-diagram-toolbar {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+
+/* El botón de expandir solo aparece al hacer hover; desaparece al clickar (modal) */
+.mermaid-diagram:hover .mermaid-diagram-toolbar {
+  opacity: 1;
+}
+
+.mermaid-diagram-content {
+  display: flex;
+  justify-content: center;
+  overflow: auto;
+}
+
+.mermaid-diagram-content svg {
+  /* Tamaño natural de mermaid (max-width inline): todos los diagramas
+     comparten el mismo tamaño de nodos y fuente */
+  width: 100%;
+  height: auto;
+}
+
+/* Al expandir: lienzo a pantalla completa con pan/zoom (svg-pan-zoom),
+   mismo fondo, borde cian y glow que el visualizador del preview */
+.mermaid-modal-svg {
+  position: absolute;
+  inset: 24px;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  border: 1px solid rgba(1, 183, 175, 0.45);
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
+  cursor: grab;
+}
+
+.mermaid-modal-svg:active {
+  cursor: grabbing;
+}
+
+/* Nodos del esquema: esquinas redondeadas y brillo cian */
+.mermaid-diagram-content .node rect,
+.mermaid-modal-svg .node rect {
+  rx: 8px;
+  ry: 8px;
+  stroke: rgba(1, 183, 175, 0.45) !important;
+  filter: drop-shadow(0 0 3px rgba(1, 183, 175, 0.3));
+}
+
+/* Subgrafos (clusters) sin recuadro ni borde, en preview y en modal */
+.mermaid-diagram-content .cluster rect,
+.mermaid-modal-svg .cluster rect {
+  fill: transparent !important;
+  stroke: none !important;
+}
+
+/* Evitar huecos de baseline bajo el svg (elemento inline por defecto) */
+.mermaid-diagram-content svg,
+.mermaid-modal-svg svg {
+  display: block;
+}
+
+/* Controles del modal: zoom +, zoom -, reiniciar vista y cerrar.
+   Dentro del recuadro del visualizador (inset 24px + margen interior 12px) */
+.mermaid-modal-controls {
+  position: absolute;
+  top: 36px;
+  right: 36px;
+  display: flex;
+  gap: 8px;
+  z-index: 2001;
+}
+
+.mermaid-modal-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 34px;
+  min-height: 34px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 6px 10px;
+  cursor: pointer;
+  color: var(--text);
+  font-size: 16px;
+  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Hover: icono cian, fondo gris y borde cian con glow como el del visualizador */
+.mermaid-modal-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: rgba(1, 183, 175, 0.45);
+  color: var(--brave-cyan);
+  box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
+}
+
+.mermaid-expand-btn {
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 4px 6px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+/* Hover: flechas cian con borde y glow como el del visualizador */
+.mermaid-expand-btn:hover {
+  color: var(--brave-cyan);
+  border-color: rgba(1, 183, 175, 0.45);
+  box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
+}
+
+/* Diálogo de inserción de diagramas Mermaid */
+.mermaid-type-btn {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  padding: 6px 10px;
+  color: var(--text);
+  font-size: 13px;
+  cursor: pointer;
+}
+.mermaid-type-btn:hover {
+  background: var(--bg-tertiary);
+  color: var(--brave-cyan-hover);
+  border-color: var(--brave-cyan-hover);
+}
+.mermaid-type-btn.selected {
+  background: var(--bg-tertiary);
+  color: var(--brave-cyan);
+  border-color: var(--brave-cyan);
+}
+.mermaid-dialog-category {
+  margin: 12px 0 4px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--brave-cyan);
 }
