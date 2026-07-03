@@ -9,6 +9,8 @@
   --accent-hover: #2563eb;
   --brave-cyan: #01b7af;
   --brave-cyan-hover: #00d4c4;
+  --brave-red: #e5484d;
+  --brave-green: #46a758;
 }
 
 *,
@@ -422,7 +424,8 @@ header[role="toolbar"] button[aria-expanded="true"]:hover::after {
 
 /* Nodos del esquema: esquinas redondeadas y brillo cian */
 .mermaid-diagram-content .node rect,
-.mermaid-modal-svg .node rect {
+.mermaid-modal-svg .node rect,
+.mermaid-dialog-svg .node rect {
   rx: 8px;
   ry: 8px;
   stroke: rgba(1, 183, 175, 0.45) !important;
@@ -431,7 +434,8 @@ header[role="toolbar"] button[aria-expanded="true"]:hover::after {
 
 /* Subgrafos (clusters) sin recuadro ni borde, en preview y en modal */
 .mermaid-diagram-content .cluster rect,
-.mermaid-modal-svg .cluster rect {
+.mermaid-modal-svg .cluster rect,
+.mermaid-dialog-svg .cluster rect {
   fill: transparent !important;
   stroke: none !important;
 }
@@ -497,34 +501,68 @@ header[role="toolbar"] button[aria-expanded="true"]:hover::after {
   box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
 }
 
-/* Diálogo de inserción de diagramas Mermaid */
+/* Diálogo de inserción de diagramas Mermaid.
+   Todos los bloques comparten la misma forma: cuadrado de esquinas
+   redondeadas, borde cyan y fondo gris, como los del visualizador */
 .mermaid-type-btn {
   display: block;
   width: 100%;
   text-align: left;
-  background: none;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  padding: 6px 10px;
+  background: var(--bg-tertiary);
+  border: 1px solid rgba(1, 183, 175, 0.35);
+  border-radius: 6px;
+  padding: 7px 10px;
+  margin: 6px 0;
   color: var(--text);
   font-size: 13px;
   cursor: pointer;
+  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 .mermaid-type-btn:hover {
-  background: var(--bg-tertiary);
   color: var(--brave-cyan-hover);
   border-color: var(--brave-cyan-hover);
+  box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
 }
 .mermaid-type-btn.selected {
-  background: var(--bg-tertiary);
   color: var(--brave-cyan);
   border-color: var(--brave-cyan);
+  box-shadow: 0 0 12px rgba(1, 183, 175, 0.16), 0 0 3px rgba(1, 183, 175, 0.25);
 }
 .mermaid-dialog-category {
-  margin: 12px 0 4px;
+  margin: 24px 0 10px;
   font-size: 11px;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   color: var(--brave-cyan);
+}
+.mermaid-dialog-category:first-child {
+  margin-top: 4px;
+}
+
+/* Botones ✕ e Insertar del diálogo: borde cyan */
+.mermaid-dialog-btn {
+  border-color: var(--brave-cyan);
+}
+
+/* Controles del preview (lupa+, lupa-, reinicio, pantalla completa) en cyan */
+.mermaid-dialog-controls {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: flex;
+  gap: 8px;
+  z-index: 10;
+}
+.mermaid-dialog-controls .mermaid-modal-btn {
+  color: var(--brave-cyan);
+  border-color: rgba(1, 183, 175, 0.35);
+}
+
+/* Lienzo del preview del diálogo: arrastre como el visualizador */
+.mermaid-dialog-svg {
+  cursor: grab;
+}
+.mermaid-dialog-svg:active {
+  cursor: grabbing;
 }
