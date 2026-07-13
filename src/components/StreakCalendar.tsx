@@ -10,7 +10,7 @@ export function StreakCalendar({ days }: StreakCalendarProps) {
   for (let i = 29; i >= 0; i--) {
     const d = new Date()
     d.setDate(d.getDate() - i)
-    const dateStr = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+    const dateStr = d.toLocaleDateString('en-CA') // YYYY-MM-DD local, igual que todayStr()
     const match = days.find((dd) => dd.date === dateStr)
     grid.push({ date: dateStr, day: match })
   }

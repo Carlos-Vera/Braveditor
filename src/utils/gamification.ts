@@ -1,69 +1,52 @@
-import type { GamificationState, UserStats, StreakState } from '../types/gamification'
+import type { GamificationState, StreakState } from '../types/gamification'
 
 const STORAGE_KEY = 'braveditor-gamification'
 
-// Títulos de nivel según rangos
-function getLevelTitleByRange(level: number): string {
-  if (level >= 1500) return 'Gran Maestro'
-  if (level >= 600) return 'Leyenda'
-  if (level >= 250) return 'Maestro'
-  if (level >= 130) return 'Autor'
-  if (level >= 50) return 'Escritor'
-  return 'Aprendiz' // Niveles 1-49
+// Nivel mínimo de cada rango: única fuente de verdad de los cortes de nivel
+export const LEVEL_TIERS = [
+  { min: 1, title: 'Aprendiz' },
+  { min: 50, title: 'Escritor' },
+  { min: 130, title: 'Autor' },
+  { min: 250, title: 'Maestro' },
+  { min: 600, title: 'Leyenda' },
+  { min: 1500, title: 'Gran Maestro' },
+] as const
+
+export function getLevelTitle(level: number): string {
+  let title: string = LEVEL_TIERS[0].title
+  for (const tier of LEVEL_TIERS) if (level >= tier.min) title = tier.title
+  return title
 }
 
 export function xpForLevel(level: number): number {
   return Math.floor(40 * Math.pow(1.05, level - 1))
 }
 
+export function xpInCurrentLevel(totalXP: number): { level: number; current: number; needed: number } {
+  let level = 1
+  let needed = xpForLevel(level)
+  let remaining = totalXP
+  while (remaining >= needed) {
+    remaining -= needed
+    level++
+    needed = xpForLevel(level)
+  }
+  return { level, current: remaining, needed }
+}
+
 export function computeLevel(totalXP: number): number {
-  let level = 1
-  let xpNeeded = xpForLevel(level)
-  let remaining = totalXP
-  while (remaining >= xpNeeded) {
-    remaining -= xpNeeded
-    level++
-    xpNeeded = xpForLevel(level)
-  }
-  return level
+  return xpInCurrentLevel(totalXP).level
 }
 
-export function xpInCurrentLevel(totalXP: number): { current: number; needed: number } {
-  let level = 1
-  let xpNeeded = xpForLevel(level)
-  let remaining = totalXP
-  while (remaining >= xpNeeded) {
-    remaining -= xpNeeded
-    level++
-    xpNeeded = xpForLevel(level)
-  }
-  return { current: remaining, needed: xpNeeded }
-}
-
-export function getLevelTitle(level: number): string {
-  return getLevelTitleByRange(level)
-}
-
+// YYYY-MM-DD en hora local ('en-CA' usa ese formato; toISOString sería UTC)
 export function todayStr(): string {
-  const d = new Date()
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
-}
-
-export function daysBetween(a: string, b: string): number {
-  const da = new Date(a + 'T00:00:00')
-  const db = new Date(b + 'T00:00:00')
-  return Math.round(Math.abs(db.getTime() - da.getTime()) / 86400000)
+  return new Date().toLocaleDateString('en-CA')
 }
 
 export function getStreakMultiplier(streak: number): number {
   if (streak >= 7) return 2.0
   if (streak >= 3) return 1.5
-  if (streak >= 1) return 1.0
   return 1.0
-}
-
-function createDefaultFormats(): Record<string, number> {
-  return {}
 }
 
 export function createDefaultState(): GamificationState {
@@ -73,9 +56,8 @@ export function createDefaultState(): GamificationState {
       totalWordsWritten: 0,
       totalTimeActiveMs: 0,
       totalDocsSaved: 0,
-      totalFormatsUsed: createDefaultFormats() as UserStats['totalFormatsUsed'],
+      totalFormatsUsed: {},
       totalXP: 0,
-      level: 1,
     },
     achievements: [],
     streak: {
@@ -83,7 +65,6 @@ export function createDefaultState(): GamificationState {
       longestStreak: 0,
       days: [],
     },
-    version: 1,
   }
 }
 
@@ -91,20 +72,14 @@ function isValidGamificationState(obj: unknown): obj is GamificationState {
   if (!obj || typeof obj !== 'object') return false
   const state = obj as Partial<GamificationState>
 
-  // Validar campos obligatorios
   if (typeof state.enabled !== 'boolean') return false
-  if (typeof state.version !== 'number') return false
   if (!state.stats || typeof state.stats !== 'object') return false
   if (!Array.isArray(state.achievements)) return false
   if (!state.streak || typeof state.streak !== 'object') return false
 
-  // Validar stats
-  const stats = state.stats as Partial<UserStats>
-  if (typeof stats.totalWordsWritten !== 'number') return false
-  if (typeof stats.totalTimeActiveMs !== 'number') return false
-  if (typeof stats.totalDocsSaved !== 'number') return false
-  if (typeof stats.totalXP !== 'number') return false
-  if (typeof stats.level !== 'number') return false
+  const stats = state.stats as Record<string, unknown>
+  const numericFields = ['totalWordsWritten', 'totalTimeActiveMs', 'totalDocsSaved', 'totalXP']
+  if (numericFields.some((f) => typeof stats[f] !== 'number')) return false
   if (!stats.totalFormatsUsed || typeof stats.totalFormatsUsed !== 'object') return false
 
   return true
@@ -132,20 +107,7 @@ export function loadGamificationState(): GamificationState {
 
 export function saveGamificationState(state: GamificationState): void {
   try {
-    const serialized = JSON.stringify(state)
-
-    // Validar tamaño (localStorage límite típico: 5-10MB)
-    const sizeInBytes = new Blob([serialized]).size
-    const maxSize = 5 * 1024 * 1024 // 5MB
-
-    if (sizeInBytes > maxSize) {
-      if (import.meta.env.DEV) {
-        console.warn(`Gamification state too large: ${(sizeInBytes / 1024 / 1024).toFixed(2)}MB`)
-      }
-      return
-    }
-
-    localStorage.setItem(STORAGE_KEY, serialized)
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   } catch (error) {
     if (import.meta.env.DEV) {
       console.error('Error saving gamification state:', error)
@@ -178,8 +140,7 @@ export function updateStreakForToday(streak: StreakState, wordsAdded: number): S
     if (!day.qualified) break
     const expectedDate = new Date()
     expectedDate.setDate(expectedDate.getDate() - currentStreak)
-    const expected = `${expectedDate.getFullYear()}-${String(expectedDate.getMonth() + 1).padStart(2, '0')}-${String(expectedDate.getDate()).padStart(2, '0')}`
-    if (day.date !== expected) break
+    if (day.date !== expectedDate.toLocaleDateString('en-CA')) break
     currentStreak++
   }
 

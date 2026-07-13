@@ -1,9 +1,9 @@
 import { useState } from 'react'
-import DOMPurify from 'dompurify'
-import { marked } from 'marked'
 import type { ToolbarAction } from '../types'
 import { AboutDialog } from './AboutDialog'
 import { MermaidDialog } from './MermaidDialog'
+import { SyntaxExample } from './SyntaxExample'
+import type { SyntaxExampleDef } from './SyntaxExample'
 import { MERMAID_VERTICAL_DEF, asMermaidBlock } from '../utils/mermaidTemplates'
 
 type ToolbarProps = {
@@ -13,9 +13,9 @@ type ToolbarProps = {
   onSave: () => void
   syncScroll: boolean
   onSyncScrollChange: (enabled: boolean) => void
-  onInsertText?: (text: string) => void
-  onFormatAction?: (action: ToolbarAction) => void
-  onShowAchievements?: () => void
+  onInsertText: (text: string) => void
+  onFormatAction: (action: ToolbarAction) => void
+  onShowAchievements: () => void
   streakWidget?: React.ReactNode
   filename?: string
 }
@@ -32,17 +32,6 @@ const FORMAT_BUTTONS: { action: ToolbarAction; label: string; prefix: string; su
   { action: 'link', label: 'Enlace', prefix: '[', suffix: '](url)' },
   { action: 'image', label: 'Imagen', prefix: '![', suffix: '](url)' },
 ]
-
-function renderPreview(markdown: string): string {
-  const html = marked(markdown, { breaks: true }) as string
-  return DOMPurify.sanitize(html)
-}
-
-type SyntaxExampleDef = {
-  title: string
-  code: string
-  customPreview?: React.ReactNode
-}
 
 const SYNTAX_EXAMPLES: SyntaxExampleDef[] = [
   { title: 'H1 - Encabezado nivel 1', code: '# Encabezado nivel 1' },
@@ -150,39 +139,6 @@ const ejemplo = "código";
   },
 ]
 
-function SyntaxExample({ title, code, customPreview, onInsert }: SyntaxExampleDef & { onInsert: (code: string) => void }) {
-  return (
-    <section style={{ marginBottom: 32 }}>
-      <h3 style={{ fontSize: 18, marginBottom: 16, color: 'var(--text)' }}>{title}</h3>
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16, alignItems: 'stretch' }}>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 }}>
-            <h4 style={{ margin: 0, fontSize: 14, color: 'var(--text-secondary)' }}>Markdown</h4>
-            <button
-              type="button"
-              className="btn"
-              style={{ fontSize: 12, padding: '6px 12px' }}
-              onClick={() => onInsert(code)}
-              title="Insertar en editor"
-            >
-              Insertar
-            </button>
-          </div>
-          <pre style={{ background: 'var(--bg-secondary)', padding: 12, borderRadius: 4, overflow: 'auto', margin: 0, fontSize: 13, flex: 1, display: 'flex', alignItems: 'center' }}>
-            {code}
-          </pre>
-        </div>
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          <h4 style={{ margin: 0, fontSize: 14, color: 'var(--text-secondary)', marginBottom: 8 }}>Preview</h4>
-          <div style={{ background: 'var(--bg-secondary)', padding: 12, borderRadius: 4, flex: 1, display: 'flex', alignItems: 'center' }}>
-            {customPreview || <div dangerouslySetInnerHTML={{ __html: renderPreview(code) }} />}
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
 export function Toolbar({
   onFormat,
   onNew,
@@ -201,10 +157,8 @@ export function Toolbar({
   const [showMermaidDialog, setShowMermaidDialog] = useState(false)
 
   const insertToEditor = (code: string) => {
-    if (onInsertText) {
-      onInsertText(code)
-      setShowSyntaxGuide(false)
-    }
+    onInsertText(code)
+    setShowSyntaxGuide(false)
   }
 
   return (
@@ -242,7 +196,7 @@ export function Toolbar({
               type="button"
               className="btn"
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => { onFormat(prefix, suffix); onFormatAction?.(action) }}
+              onClick={() => { onFormat(prefix, suffix); onFormatAction(action) }}
               aria-label={`Agregar ${label}`}
             >
               {label}
@@ -255,7 +209,7 @@ export function Toolbar({
               title="Insertar código Mermaid"
               aria-label="Insertar código Mermaid"
               onMouseDown={(e) => e.preventDefault()}
-              onClick={() => onInsertText?.(asMermaidBlock(MERMAID_VERTICAL_DEF))}
+              onClick={() => onInsertText(asMermaidBlock(MERMAID_VERTICAL_DEF))}
             >
               Mermaid
             </button>
@@ -297,16 +251,14 @@ export function Toolbar({
         )}
         <div style={{ marginLeft: filename ? 0 : 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
           {streakWidget}
-          {onShowAchievements && (
-            <button
-              type="button"
-              className="btn"
-              onClick={onShowAchievements}
-              aria-label="Logros y gamificación"
-            >
-              🏆
-            </button>
-          )}
+          <button
+            type="button"
+            className="btn"
+            onClick={onShowAchievements}
+            aria-label="Logros y gamificación"
+          >
+            🏆
+          </button>
           <button
             type="button"
             className="btn"
@@ -420,7 +372,7 @@ export function Toolbar({
         isOpen={showMermaidDialog}
         onClose={() => setShowMermaidDialog(false)}
         onInsert={(md) => {
-          onInsertText?.(md)
+          onInsertText(md)
           setShowMermaidDialog(false)
         }}
       />
