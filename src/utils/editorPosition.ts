@@ -49,13 +49,7 @@ export function getPreviewStats(html: string): { characters: number; words: numb
   const text = html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
 
   // Contar bloques de contenido que gramaticalmente son párrafos
-  const pTags = (html.match(/<p\b/gi) ?? []).length
-  const liTags = (html.match(/<li\b/gi) ?? []).length
-  const blockquotes = (html.match(/<blockquote\b/gi) ?? []).length
-  const headings = (html.match(/<h[1-6]\b/gi) ?? []).length
-  const codeBlocks = (html.match(/<pre\b/gi) ?? []).length
-
-  const paragraphs = pTags + liTags + blockquotes + headings + codeBlocks
+  const paragraphs = (html.match(/<(p|li|blockquote|h[1-6]|pre)\b/gi) ?? []).length
 
   return {
     characters: text.length,

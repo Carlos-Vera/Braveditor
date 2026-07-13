@@ -23,9 +23,8 @@ export type UserStats = {
   totalWordsWritten: number
   totalTimeActiveMs: number
   totalDocsSaved: number
-  totalFormatsUsed: Record<ToolbarAction, number>
+  totalFormatsUsed: Partial<Record<ToolbarAction, number>>
   totalXP: number
-  level: number
 }
 
 export type StreakDay = {
@@ -50,5 +49,4 @@ export type GamificationState = {
   stats: UserStats
   achievements: AchievementProgress[]
   streak: StreakState
-  version: number
 }

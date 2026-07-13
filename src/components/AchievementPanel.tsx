@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { AchievementProgress, AchievementCategory, UserStats, StreakState } from '../types/gamification'
 import { ACHIEVEMENT_DEFS } from '../utils/achievementDefs'
-import { getLevelTitle } from '../utils/gamification'
+import { getLevelTitle, computeLevel, LEVEL_TIERS } from '../utils/gamification'
 import { StreakCalendar } from './StreakCalendar'
 
 type AchievementPanelProps = {
@@ -21,36 +21,36 @@ const CATEGORIES: { key: AchievementCategory | 'levels'; label: string }[] = [
   { key: 'levels', label: 'Niveles' },
 ]
 
-const LEVEL_RANGES = [
-  { range: '1-49', title: 'Aprendiz', icon: '📝', color: '#8b8b8b' },
-  { range: '50-129', title: 'Escritor', icon: '✏️', color: '#4a9eff' },
-  { range: '130-249', title: 'Autor', icon: '📖', color: '#9b59b6' },
-  { range: '250-599', title: 'Maestro', icon: '🏆', color: '#f39c12' },
-  { range: '600-1499', title: 'Leyenda', icon: '⭐', color: '#e74c3c' },
-  { range: '1500+', title: 'Gran Maestro', icon: '👑', color: '#c0392b' },
-]
-
-const btnStyle: React.CSSProperties = {
-  background: 'var(--bg-tertiary)',
-  color: 'var(--text)',
-  border: '1px solid var(--border)',
-  borderRadius: 4,
-  padding: '6px 10px',
-  cursor: 'pointer',
-  fontSize: 13,
-  fontWeight: 500,
+// Icono/color por rango; los umbrales viven en LEVEL_TIERS (única fuente)
+const TIER_STYLE: Record<string, { icon: string; color: string }> = {
+  Aprendiz: { icon: '📝', color: '#8b8b8b' },
+  Escritor: { icon: '✏️', color: '#4a9eff' },
+  Autor: { icon: '📖', color: '#9b59b6' },
+  Maestro: { icon: '🏆', color: '#f39c12' },
+  Leyenda: { icon: '⭐', color: '#e74c3c' },
+  'Gran Maestro': { icon: '👑', color: '#c0392b' },
 }
+
+const LEVEL_RANGES = LEVEL_TIERS.map((tier, i) => {
+  const next = LEVEL_TIERS[i + 1]
+  return {
+    ...tier,
+    ...TIER_STYLE[tier.title],
+    range: next ? `${tier.min}-${next.min - 1}` : `${tier.min}+`,
+  }
+})
 
 export function AchievementPanel({ achievements, stats, streak, onClose, onToggleEnabled, enabled }: AchievementPanelProps) {
   const [activeTab, setActiveTab] = useState<AchievementCategory | 'levels'>('writing')
 
+  const level = computeLevel(stats.totalXP)
   const filteredDefs = ACHIEVEMENT_DEFS.filter((d) => d.category === activeTab)
 
   const getProgress = (id: string): AchievementProgress => {
     return achievements.find((a) => a.id === id) ?? { id, current: 0, unlocked: false }
   }
 
-  const unlockedCount = achievements.filter((a) => a.unlocked).length
+  const unlockedCount = ACHIEVEMENT_DEFS.filter((d) => getProgress(d.id).unlocked).length
 
   return (
     <div
@@ -88,7 +88,7 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
           <h2 style={{ margin: 0, fontSize: 22 }}>
             🏆 Logros ({unlockedCount}/{ACHIEVEMENT_DEFS.length})
           </h2>
-          <button type="button" style={{ ...btnStyle, fontSize: 18, padding: '4px 12px' }} onClick={onClose}>
+          <button type="button" className="btn" style={{ fontSize: 18, padding: '4px 12px' }} onClick={onClose}>
             ✕
           </button>
         </div>
@@ -108,7 +108,7 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
           <div>
             <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Nivel</div>
             <div style={{ fontWeight: 600 }}>
-              {stats.level} - {getLevelTitle(stats.level)}
+              {level} - {getLevelTitle(level)}
             </div>
           </div>
           <div>
@@ -140,12 +140,8 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
             <button
               key={cat.key}
               type="button"
-              style={{
-                ...btnStyle,
-                background: activeTab === cat.key ? '#01b7af' : 'var(--bg-tertiary)',
-                color: activeTab === cat.key ? '#000' : 'var(--text)',
-                fontWeight: activeTab === cat.key ? 700 : 500,
-              }}
+              className="btn"
+              style={activeTab === cat.key ? { background: '#01b7af', color: '#000', fontWeight: 700 } : undefined}
               onClick={() => setActiveTab(cat.key)}
             >
               {cat.label}
@@ -157,7 +153,7 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
         {activeTab === 'levels' ? (
           <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
             {LEVEL_RANGES.map((levelRange, idx) => {
-              const isCurrentRange = getLevelTitle(stats.level) === levelRange.title
+              const isCurrentRange = getLevelTitle(level) === levelRange.title
               return (
                 <div
                   key={idx}
@@ -180,7 +176,7 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontWeight: 600, fontSize: 14 }}>{levelRange.title}</span>
                       <span style={{ fontSize: 11, color: isCurrentRange ? '#01b7af' : 'var(--text-muted)' }}>
-                        {isCurrentRange ? `✓ Nivel ${stats.level}` : `Niveles ${levelRange.range}`}
+                        {isCurrentRange ? `✓ Nivel ${level}` : `Niveles ${levelRange.range}`}
                       </span>
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
@@ -264,11 +260,8 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
           <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Sistema de gamificación</span>
           <button
             type="button"
-            style={{
-              ...btnStyle,
-              background: enabled ? '#01b7af' : 'var(--bg-tertiary)',
-              color: enabled ? '#000' : 'var(--text)',
-            }}
+            className="btn"
+            style={enabled ? { background: '#01b7af', color: '#000' } : undefined}
             onClick={onToggleEnabled}
           >
             {enabled ? 'Activado' : 'Desactivado'}

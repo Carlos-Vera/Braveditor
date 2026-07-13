@@ -25,7 +25,5 @@ export const ACHIEVEMENT_DEFS: AchievementDef[] = [
   { id: 'streak-7', name: 'Racha de 14', description: 'Mantén una racha de 14 días', icon: '🔥', category: 'productivity', target: 14, xpReward: 1000 },
 
   // Special
-  { id: 'format-master', name: 'Explorador', description: 'Usa todos los botones de formato', icon: '🎨', category: 'special', target: 10, xpReward: 300 },
-  { id: 'perfectionist', name: 'Perfeccionista', description: 'Edita un documento más de 100 veces', icon: '🎯', category: 'special', target: 100, xpReward: 500 },
   { id: 'brave-ace', name: 'As de Braves', description: 'Consigue todos los logros', icon: '🚀', category: 'special', target: 1, xpReward: 2000 },
 ]

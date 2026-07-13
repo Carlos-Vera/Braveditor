@@ -7,7 +7,6 @@ import { createTheme } from '@uiw/codemirror-themes'
 import type { EditorSelection } from '../types'
 
 export type EditorPaneHandle = {
-  focus: () => void
   setSelection: (from: number, to: number) => void
 }
 
@@ -97,9 +96,6 @@ const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(functi
 
   // Exponer métodos del editor al componente padre
   useImperativeHandle(ref, () => ({
-    focus: () => {
-      editorViewRef.current?.focus()
-    },
     setSelection: (from: number, to: number) => {
       if (!editorViewRef.current) return
       const view = editorViewRef.current
@@ -209,26 +205,6 @@ const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(functi
         extensions={extensions}
         onChange={onChange}
         style={editorStyle}
-        basicSetup={{
-          lineNumbers: true,
-          highlightActiveLineGutter: true,
-          highlightActiveLine: true,
-          foldGutter: true,
-          dropCursor: true,
-          allowMultipleSelections: true,
-          indentOnInput: true,
-          bracketMatching: true,
-          closeBrackets: true,
-          autocompletion: true,
-          rectangularSelection: true,
-          crosshairCursor: true,
-          highlightSelectionMatches: true,
-          closeBracketsKeymap: true,
-          searchKeymap: true,
-          foldKeymap: true,
-          completionKeymap: true,
-          lintKeymap: true,
-        }}
         onCreateEditor={(view) => {
           editorViewRef.current = view
           setEditorReady(true)

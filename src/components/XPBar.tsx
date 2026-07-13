@@ -2,14 +2,13 @@ import { xpInCurrentLevel, getLevelTitle } from '../utils/gamification'
 
 type XPBarProps = {
   totalXP: number
-  level: number
   enabled: boolean
 }
 
-export function XPBar({ totalXP, level, enabled }: XPBarProps) {
+export function XPBar({ totalXP, enabled }: XPBarProps) {
   if (!enabled) return null
 
-  const { current, needed } = xpInCurrentLevel(totalXP)
+  const { level, current, needed } = xpInCurrentLevel(totalXP)
   const pct = Math.min((current / needed) * 100, 100)
   const title = getLevelTitle(level)
 

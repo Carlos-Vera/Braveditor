@@ -4,7 +4,6 @@ import type { ReactNode } from 'react'
 type SplitLayoutProps = {
   left: ReactNode
   right: ReactNode
-  defaultRatio?: number
   showToolbar: boolean
   onToggleToolbar: () => void
   showFooter: boolean
@@ -15,16 +14,51 @@ type SplitLayoutProps = {
 
 type ViewMode = 'split' | 'editor' | 'preview'
 
-export function SplitLayout({ left, right, defaultRatio = 0.5, showToolbar, onToggleToolbar, showFooter, onToggleFooter, onCopy, copyFeedback }: SplitLayoutProps) {
-  const [ratio, setRatio] = useState(defaultRatio)
+// Barra horizontal con chevron apuntando hacia ella (toggle de toolbar/footer)
+function BarIcon({ top }: { top: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="2" y={top ? 2 : 11} width="12" height="3" fill="currentColor" />
+      <path
+        d={top ? 'M 4 9 L 8 6 L 12 9' : 'M 4 7 L 8 10 L 12 7'}
+        stroke="currentColor"
+        strokeWidth="1.5"
+        fill="none"
+        strokeLinecap="round"
+      />
+    </svg>
+  )
+}
+
+function CopyIcon({ done }: { done: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      {done ? (
+        <path d="M 3 8 L 6 11 L 13 4" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+      ) : (
+        <>
+          <rect x="5" y="5" width="9" height="9" stroke="currentColor" strokeWidth="1.5" fill="none" rx="1" />
+          <path d="M 3 11 L 3 3 C 3 2.4 3.4 2 4 2 L 10 2" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
+        </>
+      )}
+    </svg>
+  )
+}
+
+function PaneIcon({ left, right }: { left?: boolean; right?: boolean }) {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      {left && <rect x="2" y="2" width="5" height="12" fill="currentColor" />}
+      {right && <rect x="9" y="2" width="5" height="12" fill="currentColor" />}
+    </svg>
+  )
+}
+
+export function SplitLayout({ left, right, showToolbar, onToggleToolbar, showFooter, onToggleFooter, onCopy, copyFeedback }: SplitLayoutProps) {
+  const [ratio, setRatio] = useState(0.5)
   const [viewMode, setViewMode] = useState<ViewMode>('split')
   const containerRef = useRef<HTMLDivElement>(null)
   const isDragging = useRef(false)
-
-  const onMouseDown = useCallback((e: React.MouseEvent) => {
-    e.preventDefault()
-    isDragging.current = true
-  }, [])
 
   const onMouseMove = useCallback(
     (e: MouseEvent) => {
@@ -37,23 +71,20 @@ export function SplitLayout({ left, right, defaultRatio = 0.5, showToolbar, onTo
     []
   )
 
-  const onMouseUp = useCallback(() => {
-    isDragging.current = false
-    window.removeEventListener('mousemove', onMouseMove)
-  }, [onMouseMove])
-
-  const onMouseDownCapture = useCallback(() => {
+  const onDragStart = useCallback((e: React.MouseEvent) => {
+    e.preventDefault()
+    isDragging.current = true
     const handleMouseUp = () => {
-      onMouseUp()
+      isDragging.current = false
+      window.removeEventListener('mousemove', onMouseMove)
       window.removeEventListener('mouseup', handleMouseUp)
     }
     window.addEventListener('mousemove', onMouseMove)
     window.addEventListener('mouseup', handleMouseUp)
-  }, [onMouseMove, onMouseUp])
+  }, [onMouseMove])
 
-  const handleToggleView = (mode: ViewMode) => {
-    setViewMode(mode)
-  }
+  const isSplit = viewMode === 'split'
+  const controlsPosition = isSplit ? 'split-controls-center' : viewMode === 'editor' ? 'split-controls-left' : 'split-controls-right'
 
   return (
     <div
@@ -66,178 +97,70 @@ export function SplitLayout({ left, right, defaultRatio = 0.5, showToolbar, onTo
           {left}
         </div>
       )}
-      {viewMode === 'split' && (
-        <div
-          role="separator"
-          aria-label="Redimensionar paneles"
-          tabIndex={0}
-          onMouseDown={(e) => {
-            onMouseDown(e)
-            onMouseDownCapture()
-          }}
-          style={{
-            width: 6,
-            minWidth: 6,
-            background: '#01b7af',
-            cursor: 'col-resize',
-            flexShrink: 0,
-            position: 'relative',
-          }}
-        >
-          <div className="split-controls split-controls-center">
+      <div
+        role={isSplit ? 'separator' : undefined}
+        aria-label={isSplit ? 'Redimensionar paneles' : undefined}
+        tabIndex={isSplit ? 0 : undefined}
+        onMouseDown={isSplit ? onDragStart : undefined}
+        style={{
+          width: 6,
+          minWidth: 6,
+          background: '#01b7af',
+          cursor: isSplit ? 'col-resize' : undefined,
+          flexShrink: 0,
+          position: 'relative',
+        }}
+      >
+        <div className={`split-controls ${controlsPosition}`}>
+          <button
+            onClick={onToggleToolbar}
+            aria-label={showToolbar ? 'Ocultar barra de navegación' : 'Mostrar barra de navegación'}
+            className="split-control-button"
+          >
+            <BarIcon top={showToolbar} />
+          </button>
+          {isSplit && (
             <button
-              onClick={onToggleToolbar}
-              aria-label={showToolbar ? "Ocultar barra de navegación" : "Mostrar barra de navegación"}
-              className="split-control-button"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                {showToolbar ? (
-                  <>
-                    <rect x="2" y="2" width="12" height="3" fill="currentColor" />
-                    <path d="M 4 9 L 8 6 L 12 9" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  </>
-                ) : (
-                  <>
-                    <rect x="2" y="11" width="12" height="3" fill="currentColor" />
-                    <path d="M 4 7 L 8 10 L 12 7" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  </>
-                )}
-              </svg>
-            </button>
-            <button
-              onClick={() => handleToggleView('editor')}
+              onClick={() => setViewMode('editor')}
               aria-label="Mostrar solo editor"
               className="split-control-button"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="9" y="2" width="5" height="12" fill="currentColor" />
-              </svg>
+              <PaneIcon right />
             </button>
+          )}
+          <button
+            onClick={onCopy}
+            aria-label={copyFeedback ? 'Copiado' : 'Copiar todo el Código Markdown'}
+            className="split-control-button"
+          >
+            <CopyIcon done={copyFeedback} />
+          </button>
+          {isSplit ? (
             <button
-              onClick={onCopy}
-              aria-label={copyFeedback ? "Copiado" : "Copiar todo el Código Markdown"}
-              className="split-control-button"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                {copyFeedback ? (
-                  <path d="M 3 8 L 6 11 L 13 4" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                ) : (
-                  <>
-                    <rect x="5" y="5" width="9" height="9" stroke="currentColor" strokeWidth="1.5" fill="none" rx="1" />
-                    <path d="M 3 11 L 3 3 C 3 2.4 3.4 2 4 2 L 10 2" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  </>
-                )}
-              </svg>
-            </button>
-            <button
-              onClick={() => handleToggleView('preview')}
+              onClick={() => setViewMode('preview')}
               aria-label="Mostrar solo preview"
               className="split-control-button"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="2" y="2" width="5" height="12" fill="currentColor" />
-              </svg>
+              <PaneIcon left />
             </button>
+          ) : (
             <button
-              onClick={onToggleFooter}
-              aria-label={showFooter ? "Ocultar barra de estado" : "Mostrar barra de estado"}
-              className="split-control-button"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                {showFooter ? (
-                  <>
-                    <rect x="2" y="11" width="12" height="3" fill="currentColor" />
-                    <path d="M 4 7 L 8 10 L 12 7" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  </>
-                ) : (
-                  <>
-                    <rect x="2" y="2" width="12" height="3" fill="currentColor" />
-                    <path d="M 4 9 L 8 6 L 12 9" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  </>
-                )}
-              </svg>
-            </button>
-          </div>
-        </div>
-      )}
-      {viewMode !== 'split' && (
-        <div
-          style={{
-            width: 6,
-            minWidth: 6,
-            background: '#01b7af',
-            flexShrink: 0,
-            position: 'relative',
-          }}
-        >
-          <div className={`split-controls ${viewMode === 'editor' ? 'split-controls-left' : 'split-controls-right'}`}>
-            <button
-              onClick={onToggleToolbar}
-              aria-label={showToolbar ? "Ocultar barra de navegación" : "Mostrar barra de navegación"}
-              className="split-control-button"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                {showToolbar ? (
-                  <>
-                    <rect x="2" y="2" width="12" height="3" fill="currentColor" />
-                    <path d="M 4 9 L 8 6 L 12 9" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  </>
-                ) : (
-                  <>
-                    <rect x="2" y="11" width="12" height="3" fill="currentColor" />
-                    <path d="M 4 7 L 8 10 L 12 7" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  </>
-                )}
-              </svg>
-            </button>
-            <button
-              onClick={onCopy}
-              aria-label={copyFeedback ? "Copiado" : "Copiar todo el Código Markdown"}
-              className="split-control-button"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                {copyFeedback ? (
-                  <path d="M 3 8 L 6 11 L 13 4" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round" />
-                ) : (
-                  <>
-                    <rect x="5" y="5" width="9" height="9" stroke="currentColor" strokeWidth="1.5" fill="none" rx="1" />
-                    <path d="M 3 11 L 3 3 C 3 2.4 3.4 2 4 2 L 10 2" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  </>
-                )}
-              </svg>
-            </button>
-            <button
-              onClick={() => handleToggleView('split')}
+              onClick={() => setViewMode('split')}
               aria-label="Mostrar vista dividida"
               className="split-control-button"
             >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <rect x="2" y="2" width="5" height="12" fill="currentColor" />
-                <rect x="9" y="2" width="5" height="12" fill="currentColor" />
-              </svg>
+              <PaneIcon left right />
             </button>
-            <button
-              onClick={onToggleFooter}
-              aria-label={showFooter ? "Ocultar barra de estado" : "Mostrar barra de estado"}
-              className="split-control-button"
-            >
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                {showFooter ? (
-                  <>
-                    <rect x="2" y="11" width="12" height="3" fill="currentColor" />
-                    <path d="M 4 7 L 8 10 L 12 7" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  </>
-                ) : (
-                  <>
-                    <rect x="2" y="2" width="12" height="3" fill="currentColor" />
-                    <path d="M 4 9 L 8 6 L 12 9" stroke="currentColor" strokeWidth="1.5" fill="none" strokeLinecap="round" />
-                  </>
-                )}
-              </svg>
-            </button>
-          </div>
+          )}
+          <button
+            onClick={onToggleFooter}
+            aria-label={showFooter ? 'Ocultar barra de estado' : 'Mostrar barra de estado'}
+            className="split-control-button"
+          >
+            <BarIcon top={!showFooter} />
+          </button>
         </div>
-      )}
+      </div>
       {viewMode !== 'editor' && (
         <div style={{ flex: viewMode === 'preview' ? 1 : 1 - ratio, minWidth: 0, display: 'flex', flexDirection: 'column' }}>
           {right}

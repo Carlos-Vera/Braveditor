@@ -5,7 +5,6 @@ import { ACHIEVEMENT_DEFS } from '../utils/achievementDefs'
 import {
   loadGamificationState,
   saveGamificationState,
-  computeLevel,
   getStreakMultiplier,
   updateStreakForToday,
 } from '../utils/gamification'
@@ -29,13 +28,8 @@ function getAchievementValue(state: GamificationState, id: string): number {
       return (s.totalFormatsUsed['code'] ?? 0)
     case 'list-lover':
       return (s.totalFormatsUsed['ul'] ?? 0) + (s.totalFormatsUsed['ol'] ?? 0)
-    case 'format-explorer': {
-      let count = 0
-      for (const key of Object.keys(s.totalFormatsUsed)) {
-        if ((s.totalFormatsUsed as Record<string, number>)[key] > 0) count++
-      }
-      return count
-    }
+    case 'format-explorer':
+      return Object.values(s.totalFormatsUsed).filter((n) => (n ?? 0) > 0).length
     case 'first-save':
     case 'saver':
       return s.totalDocsSaved
@@ -45,22 +39,11 @@ function getAchievementValue(state: GamificationState, id: string): number {
     case 'streak-3':
     case 'streak-7':
       return state.streak.currentStreak
-    case 'format-master': {
-      // Cuenta cuántos formatos diferentes se han usado al menos una vez
-      let count = 0
-      for (const key of Object.keys(s.totalFormatsUsed)) {
-        if ((s.totalFormatsUsed as Record<string, number>)[key] > 0) count++
-      }
-      return count
-    }
-    case 'perfectionist':
-      // Por ahora retorna 0, necesita tracking de ediciones por documento
-      return 0
     case 'brave-ace': {
       // Verifica si todos los otros logros están desbloqueados
-      const allOtherAchievements = ACHIEVEMENT_DEFS.filter(a => a.id !== 'brave-ace')
-      const unlockedCount = state.achievements.filter(a => a.id !== 'brave-ace' && a.unlocked).length
-      return unlockedCount === allOtherAchievements.length ? 1 : 0
+      const others = ACHIEVEMENT_DEFS.filter((d) => d.id !== 'brave-ace')
+      const unlocked = others.filter((d) => state.achievements.find((a) => a.id === d.id)?.unlocked).length
+      return unlocked === others.length ? 1 : 0
     }
     default:
       return 0
@@ -109,51 +92,11 @@ export function useGamification() {
   const [state, setState] = useState<GamificationState>(loadGamificationState)
   const [pendingToasts, setPendingToasts] = useState<PendingToast[]>([])
   const lastWordCountRef = useRef(0)
-  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   // Persist on change
   useEffect(() => {
     saveGamificationState(state)
   }, [state])
-
-  // Active time timer
-  useEffect(() => {
-    if (!state.enabled) return
-    timerRef.current = setInterval(() => {
-      setState((prev) => {
-        const multiplier = getStreakMultiplier(prev.streak.currentStreak)
-        const xpGain = Math.floor(5 * multiplier)
-        const newStats = {
-          ...prev.stats,
-          totalTimeActiveMs: prev.stats.totalTimeActiveMs + 300000,
-          totalXP: prev.stats.totalXP + xpGain,
-          level: computeLevel(prev.stats.totalXP + xpGain),
-        }
-        const newState = { ...prev, stats: newStats }
-        const { updatedAchievements, newlyUnlocked, xpGained } = checkAchievements(newState)
-        if (xpGained > 0) {
-          newState.stats = {
-            ...newState.stats,
-            totalXP: newState.stats.totalXP + xpGained,
-            level: computeLevel(newState.stats.totalXP + xpGained),
-          }
-        }
-        newState.achievements = updatedAchievements
-        if (newlyUnlocked.length > 0) {
-          const toasts = newlyUnlocked.map((id) => ({
-            id: `${id}-${Date.now()}`,
-            achievement: ACHIEVEMENT_DEFS.find((d) => d.id === id)!,
-          }))
-          setPendingToasts((prev) => [...prev, ...toasts])
-        }
-        return newState
-      })
-    }, 300000) // 5 minutes
-
-    return () => {
-      if (timerRef.current) clearInterval(timerRef.current)
-    }
-  }, [state.enabled])
 
   const applyWithAchievements = useCallback((updater: (prev: GamificationState) => GamificationState) => {
     setState((prev) => {
@@ -164,7 +107,6 @@ export function useGamification() {
         finalState.stats = {
           ...finalState.stats,
           totalXP: finalState.stats.totalXP + xpGained,
-          level: computeLevel(finalState.stats.totalXP + xpGained),
         }
       }
       if (newlyUnlocked.length > 0) {
@@ -177,6 +119,27 @@ export function useGamification() {
       return finalState
     })
   }, [])
+
+  // Timer de tiempo activo: +5 min y XP base cada 5 min
+  useEffect(() => {
+    if (!state.enabled) return
+    const timer = setInterval(() => {
+      applyWithAchievements((prev) => {
+        const multiplier = getStreakMultiplier(prev.streak.currentStreak)
+        const xpGain = Math.floor(5 * multiplier)
+        return {
+          ...prev,
+          stats: {
+            ...prev.stats,
+            totalTimeActiveMs: prev.stats.totalTimeActiveMs + 300000,
+            totalXP: prev.stats.totalXP + xpGain,
+          },
+        }
+      })
+    }, 300000) // 5 minutes
+
+    return () => clearInterval(timer)
+  }, [state.enabled, applyWithAchievements])
 
   const trackWords = useCallback(
     (currentWordCount: number) => {
@@ -192,7 +155,6 @@ export function useGamification() {
           ...prev.stats,
           totalWordsWritten: prev.stats.totalWordsWritten + delta,
           totalXP: prev.stats.totalXP + xpGain,
-          level: computeLevel(prev.stats.totalXP + xpGain),
         }
         const newStreak = updateStreakForToday(prev.streak, delta)
         return { ...prev, stats: newStats, streak: newStreak }
@@ -213,7 +175,6 @@ export function useGamification() {
           ...prev.stats,
           totalFormatsUsed: newFormats,
           totalXP: prev.stats.totalXP + xpGain,
-          level: computeLevel(prev.stats.totalXP + xpGain),
         }
         return { ...prev, stats: newStats }
       })
@@ -232,7 +193,6 @@ export function useGamification() {
           ...prev.stats,
           totalDocsSaved: prev.stats.totalDocsSaved + 1,
           totalXP: prev.stats.totalXP + xpGain,
-          level: computeLevel(prev.stats.totalXP + xpGain),
         }
         return { ...prev, stats: newStats }
       })

@@ -149,7 +149,6 @@ export default function App() {
   const xpBar = (
     <XPBar
       totalXP={gamState.stats.totalXP}
-      level={gamState.stats.level}
       enabled={gamState.enabled}
     />
   )
