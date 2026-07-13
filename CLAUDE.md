@@ -15,15 +15,16 @@
 - **Vite** 7.3.1
 
 ### Dependencias Clave
-- `@uiw/react-codemirror` 4.25.4 - Editor de código basado en CodeMirror 6
-- `@codemirror/lang-markdown` 6.5.0 - Soporte de lenguaje Markdown para CodeMirror
-- `@codemirror/theme-one-dark` 6.1.3 - Tema One Dark para CodeMirror
-- `@codemirror/language-data` 6.5.2 - Datos de lenguajes para CodeMirror
-- `@uiw/codemirror-themes` 4.25.4 - Temas adicionales para CodeMirror
-- `@lezer/highlight` 1.2.3 - Highlighting para CodeMirror
-- `marked` 12.0.1 - Parser de Markdown a HTML
-- `dompurify` 3.0.9 - Sanitización de HTML
-- `refractor` 4.8.0 - Sintaxis highlighting
+- `@uiw/react-codemirror` - Editor de código basado en CodeMirror 6
+- `@codemirror/lang-markdown` - Soporte de lenguaje Markdown para CodeMirror
+- `@uiw/codemirror-themes` - Tema personalizado para CodeMirror
+- `@lezer/highlight` - Highlighting para CodeMirror
+- `marked` - Parser de Markdown a HTML
+- `dompurify` - Sanitización de HTML
+- `mermaid` + `@mermaid-js/layout-elk` - Diagramas en el preview
+- `svg-pan-zoom` - Pan/zoom en el modal de diagramas
+
+(Versiones exactas: ver `package.json`)
 
 ## Estructura del Proyecto
 
@@ -35,6 +36,7 @@ src/
 │   ├── Toolbar.tsx
 │   ├── SplitLayout.tsx
 │   ├── EditorStatusBar.tsx
+│   ├── AboutDialog.tsx         # Diálogo "Acerca de"
 │   ├── AchievementPanel.tsx    # Panel de logros y gamificación
 │   ├── AchievementToast.tsx    # Notificaciones de logros
 │   ├── StreakCalendar.tsx      # Calendario de racha de escritura
@@ -44,12 +46,12 @@ src/
 │   ├── useMarkdown.ts
 │   └── useGamification.ts      # Hook para sistema de gamificación
 ├── types/              # Definiciones de tipos TypeScript
-│   └── index.ts
+│   ├── index.ts
+│   └── gamification.ts
 ├── utils/              # Utilidades y helpers
 │   ├── editorPosition.ts
 │   ├── markdown.ts
 │   ├── fileHandling.ts
-│   ├── n8nHighlight.ts
 │   ├── gamification.ts         # Lógica de gamificación
 │   └── achievementDefs.ts      # Definiciones de logros
 ├── App.tsx             # Componente principal
@@ -184,7 +186,7 @@ npm run preview  # Preview de build de producción
 ### Editor
 - El proyecto usa `@uiw/react-codemirror` para edición de código (CodeMirror 6)
 - Sintaxis highlighting con `@codemirror/lang-markdown`
-- Tema: `@codemirror/theme-one-dark`
+- Tema: oscuro personalizado con `@uiw/codemirror-themes` (ver `EditorPane.tsx`)
 - Scroll sincronizado entre editor y preview
 - Línea/columna tracking en tiempo real
 
