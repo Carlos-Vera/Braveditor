@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { markdownToHtmlAsync } from '../utils/markdown'
 import { loadDraft, saveDraft } from '../utils/fileHandling'
 
@@ -15,10 +15,6 @@ export function useMarkdown() {
   const [raw, setRaw] = useState(() => loadDraft() ?? INITIAL)
   const [html, setHtml] = useState('')
 
-  const setContent = useCallback((value: string) => {
-    setRaw(value)
-  }, [])
-
   useEffect(() => {
     let cancelled = false
     markdownToHtmlAsync(raw).then((out) => {
@@ -31,5 +27,5 @@ export function useMarkdown() {
     saveDraft(raw)
   }, [raw])
 
-  return { raw, html, setContent }
+  return { raw, html, setContent: setRaw }
 }

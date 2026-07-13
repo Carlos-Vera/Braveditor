@@ -3,10 +3,12 @@
   --bg-secondary: #1a1a1a;
   --bg-tertiary: #262626;
   --text: #e0e0e0;
+  --text-secondary: #b3b3b3;
   --text-muted: #9ca3af;
   --border: #333;
   --accent: #3b82f6;
   --accent-hover: #2563eb;
+  --text-link: var(--accent);
   --brave-cyan: #01b7af;
   --brave-cyan-hover: #00d4c4;
   --brave-red: #e5484d;
@@ -49,15 +51,6 @@ body {
 }
 *::-webkit-scrollbar-thumb:hover {
   background: var(--bg-tertiary);
-}
-
-/* Ocultar scrollbar en la columna de números de línea del editor */
-.editor-line-numbers {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-.editor-line-numbers::-webkit-scrollbar {
-  display: none;
 }
 
 /* Preview pane content — lectura tipo Claude Desktop */
@@ -108,6 +101,9 @@ body {
   line-height: 1.5;
 }
 .preview-content pre code { background: none; padding: 0; font-size: 0.85em; }
+/* Código mermaid aún sin renderizar: las líneas largas saltan hacia abajo
+   (el bloque crece en alto) en vez de generar scroll horizontal */
+.preview-content pre code.language-mermaid { white-space: pre-wrap; word-break: break-word; }
 
 .preview-content a { color: var(--accent); text-decoration: none; }
 .preview-content a:hover { text-decoration: underline; }
@@ -161,18 +157,6 @@ body {
 }
 .btn-on { background: var(--border); }
 .btn-dim { opacity: 0.6; }
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0, 0, 0, 0);
-  white-space: nowrap;
-  border: 0;
-}
 
 /* Split Layout Controls */
 .split-controls {
@@ -295,26 +279,10 @@ header[role="toolbar"] button[aria-expanded="true"]:hover::after {
   }
 }
 
-@keyframes toast-fade-out {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-    transform: translateX(50%);
-  }
-}
-
 @keyframes xp-pulse {
   0% { box-shadow: 0 0 0 0 rgba(1, 183, 175, 0.4); }
   70% { box-shadow: 0 0 0 6px rgba(1, 183, 175, 0); }
   100% { box-shadow: 0 0 0 0 rgba(1, 183, 175, 0); }
-}
-
-@keyframes level-up {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.2); }
-  100% { transform: scale(1); }
 }
 
 .achievement-toast {
@@ -323,14 +291,6 @@ header[role="toolbar"] button[aria-expanded="true"]:hover::after {
 
 .xp-bar-fill {
   animation: xp-pulse 1s ease-out;
-}
-
-.xp-pulse {
-  animation: xp-pulse 0.6s ease-out;
-}
-
-.level-up {
-  animation: level-up 0.5s ease-out;
 }
 
 /* Botón de copiar código en bloques de código */
@@ -368,14 +328,13 @@ header[role="toolbar"] button[aria-expanded="true"]:hover::after {
   color: #10b981;
 }
 
-/* Mermaid diagrams: integrados en el preview, con borde cian brave y glow suave */
+/* Mermaid diagrams: integrados en el preview, con borde gris sutil sin glow */
 .mermaid-diagram {
   position: relative;
   margin: 1em 0;
   padding: 1rem;
-  border: 1px solid rgba(1, 183, 175, 0.45);
+  border: 1px solid var(--border);
   border-radius: 8px;
-  box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
 }
 
 .mermaid-diagram-toolbar {
@@ -405,16 +364,13 @@ header[role="toolbar"] button[aria-expanded="true"]:hover::after {
   height: auto;
 }
 
-/* Al expandir: lienzo a pantalla completa con pan/zoom (svg-pan-zoom),
-   mismo fondo, borde cian y glow que el visualizador del preview */
+/* Al expandir: lienzo a pantalla completa con pan/zoom (svg-pan-zoom) */
 .mermaid-modal-svg {
   position: absolute;
   inset: 24px;
   overflow: hidden;
   background: var(--bg-secondary);
-  border: 1px solid rgba(1, 183, 175, 0.45);
   border-radius: 12px;
-  box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
   cursor: grab;
 }
 
@@ -422,14 +378,13 @@ header[role="toolbar"] button[aria-expanded="true"]:hover::after {
   cursor: grabbing;
 }
 
-/* Nodos del esquema: esquinas redondeadas y brillo cian */
+/* Nodos del esquema: esquinas redondeadas, borde casi invisible */
 .mermaid-diagram-content .node rect,
 .mermaid-modal-svg .node rect,
 .mermaid-dialog-svg .node rect {
   rx: 8px;
   ry: 8px;
-  stroke: rgba(1, 183, 175, 0.45) !important;
-  filter: drop-shadow(0 0 3px rgba(1, 183, 175, 0.3));
+  stroke: var(--border) !important;
 }
 
 /* Subgrafos (clusters) sin recuadro ni borde, en preview y en modal */
@@ -457,112 +412,151 @@ header[role="toolbar"] button[aria-expanded="true"]:hover::after {
   z-index: 2001;
 }
 
-.mermaid-modal-btn {
+/* Botones del modal y del hover de diagrama: usan .btn; solo centran el icono */
+.mermaid-modal-controls .btn,
+.mermaid-diagram-toolbar .btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 34px;
-  min-height: 34px;
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 6px 10px;
-  cursor: pointer;
-  color: var(--text);
-  font-size: 16px;
-  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
 }
 
-/* Hover: icono cian, fondo gris y borde cian con glow como el del visualizador */
-.mermaid-modal-btn:hover {
-  background: var(--bg-tertiary);
-  border-color: rgba(1, 183, 175, 0.45);
-  color: var(--brave-cyan);
-  box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
+/* Previews del diálogo Mermaid: el svg llena el ancho del cuadro y su alto
+   sigue la proporción del diagrama, con tope para los muy verticales
+   (mermaid fija max-width inline, por eso el !important) */
+.mermaid-dialog-svg svg {
+  display: block;
+  margin: 0 auto;
+  width: 100%;
+  height: auto;
+  max-height: 320px;
+  max-width: none !important;
 }
 
-.mermaid-expand-btn {
-  background: var(--bg-tertiary);
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  padding: 4px 6px;
-  cursor: pointer;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
+/* ER: cabecera de entidad gris neutro con borde casi invisible (en preview,
+   modal y diálogo; las filas alternas vienen del tema de mermaid) */
+.mermaid-diagram-content .er.entityBox,
+.mermaid-modal-svg .er.entityBox,
+.mermaid-dialog-svg .er.entityBox {
+  fill: #262626;
+  stroke: #333333;
 }
 
-/* Hover: flechas cian con borde y glow como el del visualizador */
-.mermaid-expand-btn:hover {
-  color: var(--brave-cyan);
-  border-color: rgba(1, 183, 175, 0.45);
-  box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
+/* Architecture: fondo de los iconos en gris neutro */
+svg[aria-roledescription="architecture"] svg rect {
+  fill: #262626 !important;
 }
 
-/* Diálogo de inserción de diagramas Mermaid.
-   Todos los bloques comparten la misma forma: cuadrado de esquinas
-   redondeadas, borde cyan y fondo gris, como los del visualizador */
-.mermaid-type-btn {
+/* User Journey: bloques grises con borde casi invisible, eje/flecha en blanco */
+svg[aria-roledescription="journey"] rect.journey-section,
+svg[aria-roledescription="journey"] rect.task {
+  fill: #262626 !important;
+  stroke: #333333 !important;
+}
+svg[aria-roledescription="journey"] line:not(.task-line):not(.mouth) {
+  stroke: #e0e0e0 !important;
+}
+svg[aria-roledescription="journey"] marker * {
+  fill: #e0e0e0 !important;
+}
+
+/* Caras del journey: fondo semáforo (verde bien, amarillo meh, rojo triste)
+   y líneas (contorno, ojos y boca) en blanco. Mermaid no da clases por
+   humor: la boca sonriente empieza en M7.5 y la triste en M-7.5 */
+svg[aria-roledescription="journey"] circle.face {
+  fill: #eab308 !important;
+  stroke: #a16207 !important;
+  stroke-width: 2px !important;
+}
+svg[aria-roledescription="journey"] g:has(> g > path.mouth[d^="M7.5"]) > circle.face {
+  fill: var(--brave-green) !important;
+  stroke: #2f7a3f !important;
+}
+svg[aria-roledescription="journey"] g:has(> g > path.mouth[d^="M-7.5"]) > circle.face {
+  fill: var(--brave-red) !important;
+  stroke: #a13538 !important;
+}
+svg[aria-roledescription="journey"] g:has(> circle.face) > g > circle {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+svg[aria-roledescription="journey"] line.mouth {
+  stroke: #ffffff !important;
+}
+svg[aria-roledescription="journey"] path.mouth {
+  fill: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Gantt: ocultar la marca "hoy" (línea roja que atravesaba el texto) */
+svg[aria-roledescription="gantt"] .today {
+  display: none;
+}
+
+/* XY chart: borde cian (única excepción de color en diagramas), sin brillo */
+svg[aria-roledescription="xychart"] .bar-plot-0 rect {
+  fill: #018f89 !important;
+  stroke: none !important;
+}
+
+/* Git graph: commits y etiquetas grises con borde casi invisible */
+svg[aria-roledescription="gitGraph"] circle.commit {
+  fill: #262626 !important;
+  stroke: #333333 !important;
+  stroke-width: 2px !important;
+}
+svg[aria-roledescription="gitGraph"] rect.branchLabelBkg {
+  fill: #262626 !important;
+  stroke: #333333 !important;
+  stroke-width: 1.5px;
+}
+
+/* Mindmap y Timeline: nodos grises con borde casi invisible, conectores blancos */
+svg[aria-roledescription="mindmap"] .node-bkg,
+svg[aria-roledescription="mindmap"] circle.basic,
+svg[aria-roledescription="timeline"] path.node-bkg {
+  stroke: #333333 !important;
+  stroke-width: 2px !important;
+}
+svg[aria-roledescription="mindmap"] .section-root circle.basic,
+svg[aria-roledescription="mindmap"] .section-0 .node-bkg,
+svg[aria-roledescription="mindmap"] .section-1 .node-bkg,
+svg[aria-roledescription="mindmap"] .section-2 .node-bkg,
+svg[aria-roledescription="mindmap"] .section-3 .node-bkg {
+  fill: #262626 !important;
+  stroke: #333333 !important;
+}
+svg[aria-roledescription="mindmap"] .section-edge-0,
+svg[aria-roledescription="mindmap"] .section-edge-1,
+svg[aria-roledescription="mindmap"] .section-edge-2,
+svg[aria-roledescription="mindmap"] .section-edge-3 { stroke: #e0e0e0 !important; }
+/* Conectores de mindmap y git graph */
+svg[aria-roledescription="mindmap"] .edge,
+svg[aria-roledescription="gitGraph"] .arrow {
+  stroke: #e0e0e0 !important;
+  stroke-width: 2px !important;
+}
+svg[aria-roledescription="timeline"] .section--1 .node-bkg,
+svg[aria-roledescription="timeline"] .section-0 .node-bkg,
+svg[aria-roledescription="timeline"] .section-1 .node-bkg,
+svg[aria-roledescription="timeline"] .section-2 .node-bkg {
+  fill: #262626 !important;
+  stroke: #333333 !important;
+}
+svg[aria-roledescription="timeline"] .node-line--1,
+svg[aria-roledescription="timeline"] .node-line-0,
+svg[aria-roledescription="timeline"] .node-line-1 { stroke: #e0e0e0 !important; }
+
+/* Títulos de Timeline y User Journey en blanco */
+svg[aria-roledescription="timeline"] text[font-size="4ex"],
+svg[aria-roledescription="journey"] text[font-size="4ex"] {
+  fill: #e0e0e0;
+}
+
+/* Kanban: textos de tarjetas y columnas centrados */
+svg[aria-roledescription="kanban"] .nodeLabel,
+svg[aria-roledescription="kanban"] .nodeLabel p {
   display: block;
   width: 100%;
-  text-align: left;
-  background: var(--bg-tertiary);
-  border: 1px solid rgba(1, 183, 175, 0.35);
-  border-radius: 6px;
-  padding: 7px 10px;
-  margin: 6px 0;
-  color: var(--text);
-  font-size: 13px;
-  cursor: pointer;
-  transition: color 0.2s, border-color 0.2s, box-shadow 0.2s;
-}
-.mermaid-type-btn:hover {
-  color: var(--brave-cyan-hover);
-  border-color: var(--brave-cyan-hover);
-  box-shadow: 0 0 12px rgba(1, 183, 175, 0.12), 0 0 3px rgba(1, 183, 175, 0.2);
-}
-.mermaid-type-btn.selected {
-  color: var(--brave-cyan);
-  border-color: var(--brave-cyan);
-  box-shadow: 0 0 12px rgba(1, 183, 175, 0.16), 0 0 3px rgba(1, 183, 175, 0.25);
-}
-.mermaid-dialog-category {
-  margin: 24px 0 10px;
-  font-size: 11px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--brave-cyan);
-}
-.mermaid-dialog-category:first-child {
-  margin-top: 4px;
-}
-
-/* Botones ✕ e Insertar del diálogo: borde cyan */
-.mermaid-dialog-btn {
-  border-color: var(--brave-cyan);
-}
-
-/* Controles del preview (lupa+, lupa-, reinicio, pantalla completa) en cyan */
-.mermaid-dialog-controls {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  display: flex;
-  gap: 8px;
-  z-index: 10;
-}
-.mermaid-dialog-controls .mermaid-modal-btn {
-  color: var(--brave-cyan);
-  border-color: rgba(1, 183, 175, 0.35);
-}
-
-/* Lienzo del preview del diálogo: arrastre como el visualizador */
-.mermaid-dialog-svg {
-  cursor: grab;
-}
-.mermaid-dialog-svg:active {
-  cursor: grabbing;
+  margin: 0;
+  text-align: center !important;
 }

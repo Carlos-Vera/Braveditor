@@ -88,40 +88,6 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   },
   {
     category: 'Datos y estructura',
-    label: 'Class diagram',
-    def: `classDiagram
-  class Animal {
-    +String nombre
-    +hacerSonido()
-  }
-  Animal <|-- Perro
-  Animal <|-- Gato`,
-  },
-  {
-    category: 'Datos y estructura',
-    label: 'Sankey diagram',
-    def: `sankey-beta
-  Ingresos,Gastos,60
-  Ingresos,Ahorro,40
-  Gastos,Vivienda,30
-  Gastos,Comida,30`,
-  },
-  {
-    category: 'Datos y estructura',
-    label: 'Quadrant chart',
-    def: `quadrantChart
-  title Alcance vs Esfuerzo
-  x-axis Poco esfuerzo --> Mucho esfuerzo
-  y-axis Poco alcance --> Mucho alcance
-  quadrant-1 Planificar
-  quadrant-2 Hacer ya
-  quadrant-3 Descartar
-  quadrant-4 Delegar
-  Tarea A: [0.3, 0.8]
-  Tarea B: [0.7, 0.4]`,
-  },
-  {
-    category: 'Datos y estructura',
     label: 'XY chart',
     def: `xychart-beta
   title "Ventas por mes"
@@ -133,7 +99,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   {
     category: 'Datos y estructura',
     label: 'Pie chart',
-    def: `pie title Lenguajes del proyecto
+    def: `pie title Lenguajes
   "TypeScript" : 60
   "CSS" : 25
   "HTML" : 15`,
@@ -176,31 +142,13 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
     category: 'Planificación y proyectos',
     label: 'Mindmap',
     def: `mindmap
-  root((BraveEditor))
-    Editor
-      CodeMirror
-    Preview
-      Mermaid`,
+  root((Idea))
+    Concepto
+      Detalle
+    Recurso
+      Ejemplo`,
   },
   // ── Arquitectura ──
-  {
-    category: 'Arquitectura',
-    label: 'Architecture diagram',
-    def: `architecture-beta
-  group api(cloud)[API]
-  service db(database)[BD] in api
-  service server(server)[Servidor] in api
-  db:L -- R:server`,
-  },
-  {
-    category: 'Arquitectura',
-    label: 'C4 diagram',
-    def: `C4Context
-  title Contexto del sistema
-  Person(usuario, "Usuario")
-  System(app, "BraveEditor", "Editor Markdown")
-  Rel(usuario, app, "Usa")`,
-  },
   {
     category: 'Arquitectura',
     label: 'Block diagram',
