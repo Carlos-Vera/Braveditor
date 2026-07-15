@@ -58,6 +58,7 @@ body {
   font-size: 1rem;
   line-height: 1.7;
   word-wrap: break-word;
+  font-family: var(--preview-font, inherit);
 }
 .preview-content > *:first-child { margin-top: 0; }
 .preview-content > *:last-child { margin-bottom: 0; }
@@ -155,8 +156,40 @@ body {
   color: #0d0d0d;
   border-color: var(--brave-cyan);
 }
+/* El trigger de un menú abierto mantiene el estilo hover (cyan) */
+.btn[data-state='open'] {
+  background: var(--brave-cyan);
+  color: #0d0d0d;
+  border-color: var(--brave-cyan);
+}
 .btn-on { background: var(--border); }
 .btn-dim { opacity: 0.6; }
+
+/* Grupo de botones unidos (estilo shadcn button-group); al hacer hover el botón resalta por encima */
+.btn-group { display: inline-flex; }
+.btn-group .btn:not(:first-child) {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  margin-left: -1px;
+}
+.btn-group .btn:not(:last-child) {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+.btn-group .btn:hover {
+  position: relative;
+  z-index: 1;
+}
+
+/* Placeholder de carga (estilo shadcn skeleton) */
+.skeleton {
+  background: var(--bg-tertiary);
+  border-radius: 6px;
+  animation: skeleton-pulse 1.5s ease-in-out infinite;
+}
+@keyframes skeleton-pulse {
+  50% { opacity: 0.5; }
+}
 
 /* Split Layout Controls */
 .split-controls {
@@ -253,6 +286,18 @@ header[role="toolbar"] button[aria-label]:hover::after {
 /* Ocultar el tooltip cuando el botón tiene su menú abierto (ej. Mermaid) */
 header[role="toolbar"] button[aria-expanded="true"]:hover::after {
   display: none;
+}
+
+/* Tooltip de Radix con el mismo estilo brave que el tooltip CSS del toolbar */
+.rt-TooltipContent {
+  background-color: var(--brave-cyan);
+}
+.rt-TooltipContent .rt-TooltipText {
+  color: #0d0d0d;
+  font-weight: 500;
+}
+.rt-TooltipContent .rt-TooltipArrow {
+  fill: var(--brave-cyan);
 }
 
 /* Padding para evitar superposición con los botones de control */
@@ -559,4 +604,23 @@ svg[aria-roledescription="kanban"] .nodeLabel p {
   width: 100%;
   margin: 0;
   text-align: center !important;
+}
+
+/* Engranaje de ajustes del preview: gris, cyan al hover o con el diálogo abierto */
+.settings-gear-trigger {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: color 0.15s ease, transform 0.2s ease;
+}
+.settings-gear-trigger:hover,
+.settings-gear-trigger[data-state='open'] {
+  color: var(--brave-cyan);
+  transform: rotate(30deg);
 }

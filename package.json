@@ -1,7 +1,7 @@
 {
   "name": "braveditor",
   "private": true,
-  "version": "2.1.0",
+  "version": "2.2.4",
   "type": "module",
   "packageManager": "pnpm@10.33.2",
   "description": "Editor Markdown profesional con preview en tiempo real y sistema de gamificación integrado",
@@ -46,6 +46,7 @@
     "@codemirror/lang-markdown": "^6.5.0",
     "@lezer/highlight": "^1.2.3",
     "@mermaid-js/layout-elk": "^0.2.2",
+    "@radix-ui/themes": "^3.3.0",
     "@uiw/codemirror-themes": "^4.25.4",
     "@uiw/react-codemirror": "^4.25.4",
     "dompurify": "^3.0.9",

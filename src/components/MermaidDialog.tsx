@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react'
 import mermaid from 'mermaid'
+import { Dialog } from '@radix-ui/themes'
 import { SyntaxExample } from './SyntaxExample'
 import { MERMAID_TEMPLATES, asMermaidBlock } from '../utils/mermaidTemplates'
+import { t } from '../i18n'
 
 type MermaidDialogProps = {
   isOpen: boolean
@@ -46,20 +48,17 @@ export function MermaidDialog({ isOpen, onClose, onInsert }: MermaidDialogProps)
     }
   }, [isOpen])
 
-  useEffect(() => {
-    if (!isOpen) return
-    const handler = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    document.addEventListener('keydown', handler)
-    return () => document.removeEventListener('keydown', handler)
-  }, [isOpen, onClose])
-
-  if (!isOpen) return null
-
   const renderedPreview = (label: string): React.ReactNode => {
     const preview = previews[label]
-    if (preview === undefined) return <span style={{ color: 'var(--text-muted)' }}>Cargando…</span>
+    if (preview === undefined) {
+      return (
+        <div aria-busy="true" aria-label={t('mermaidLoadingDiagram')} style={{ display: 'flex', flexDirection: 'column', gap: 8, width: '100%' }}>
+          <div className="skeleton" style={{ height: 140 }} />
+          <div className="skeleton" style={{ height: 12, width: '60%' }} />
+          <div className="skeleton" style={{ height: 12, width: '40%' }} />
+        </div>
+      )
+    }
     if (preview.startsWith('error:')) {
       return <pre style={{ color: 'var(--brave-red)', fontSize: 12, whiteSpace: 'pre-wrap', margin: 0 }}>{preview.slice(6)}</pre>
     }
@@ -67,50 +66,25 @@ export function MermaidDialog({ isOpen, onClose, onInsert }: MermaidDialogProps)
   }
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: 20,
-      }}
-      onClick={onClose}
-    >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-label="Opciones de código Mermaid"
-        style={{
-          background: 'var(--bg-primary)',
-          border: '1px solid var(--border)',
-          borderRadius: 8,
-          padding: '24px 32px',
-          maxWidth: 1200,
-          width: '95vw',
-          maxHeight: '90vh',
-          overflow: 'auto',
-          color: 'var(--text)',
-        }}
-        onClick={(e) => e.stopPropagation()}
+    <Dialog.Root open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
+      <Dialog.Content
+        maxWidth="1200px"
+        width="95vw"
+        aria-describedby={undefined}
+        style={{ maxHeight: '90vh', overflow: 'auto' }}
       >
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 24 }}>Insertar código Mermaid</h2>
-          <button
-            type="button"
-            className="btn"
-            style={{ fontSize: 18, padding: '4px 12px' }}
-            onClick={onClose}
-            aria-label="Cerrar"
-          >
-            ✕
-          </button>
+          <Dialog.Title style={{ margin: 0, fontSize: 24 }}>{t('mermaidDialogTitle')}</Dialog.Title>
+          <Dialog.Close>
+            <button
+              type="button"
+              className="btn"
+              style={{ fontSize: 18, padding: '4px 12px' }}
+              aria-label={t('mermaidClose')}
+            >
+              ✕
+            </button>
+          </Dialog.Close>
         </div>
 
         <div style={{ lineHeight: 1.6 }}>
@@ -124,7 +98,7 @@ export function MermaidDialog({ isOpen, onClose, onInsert }: MermaidDialogProps)
             />
           ))}
         </div>
-      </div>
-    </div>
+      </Dialog.Content>
+    </Dialog.Root>
   )
 }

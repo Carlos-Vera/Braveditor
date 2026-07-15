@@ -1,4 +1,5 @@
 import { xpInCurrentLevel, getLevelTitle } from '../utils/gamification'
+import { t } from '../i18n'
 
 type XPBarProps = {
   totalXP: number
@@ -15,7 +16,7 @@ export function XPBar({ totalXP, enabled }: XPBarProps) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
       <span style={{ fontWeight: 600, whiteSpace: 'nowrap' }}>
-        Nv.{level} {title}
+        {t('xpLevelPrefix')}{level} {title}
       </span>
       <div
         style={{
@@ -40,7 +41,7 @@ export function XPBar({ totalXP, enabled }: XPBarProps) {
         />
       </div>
       <span style={{ fontSize: 11, whiteSpace: 'nowrap' }}>
-        {current}/{needed} XP
+        {current}/{needed} {t('xpAbbrev')}
       </span>
     </div>
   )

@@ -1,5 +1,6 @@
 import { useState, useRef, useCallback } from 'react'
 import type { ReactNode } from 'react'
+import { t } from '../i18n'
 
 type SplitLayoutProps = {
   left: ReactNode
@@ -10,6 +11,8 @@ type SplitLayoutProps = {
   onToggleFooter: () => void
   onCopy: () => void
   copyFeedback: boolean
+  syncScroll: boolean
+  onSyncScrollChange: (enabled: boolean) => void
 }
 
 type ViewMode = 'split' | 'editor' | 'preview'
@@ -45,6 +48,21 @@ function CopyIcon({ done }: { done: boolean }) {
   )
 }
 
+// Flechas ⇅: scroll sincronizado entre editor y preview
+function SyncScrollIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <path
+        d="M 5 13 L 5 3 M 5 3 L 2.5 5.5 M 5 3 L 7.5 5.5 M 11 3 L 11 13 M 11 13 L 8.5 10.5 M 11 13 L 13.5 10.5"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 function PaneIcon({ left, right }: { left?: boolean; right?: boolean }) {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -54,7 +72,7 @@ function PaneIcon({ left, right }: { left?: boolean; right?: boolean }) {
   )
 }
 
-export function SplitLayout({ left, right, showToolbar, onToggleToolbar, showFooter, onToggleFooter, onCopy, copyFeedback }: SplitLayoutProps) {
+export function SplitLayout({ left, right, showToolbar, onToggleToolbar, showFooter, onToggleFooter, onCopy, copyFeedback, syncScroll, onSyncScrollChange }: SplitLayoutProps) {
   const [ratio, setRatio] = useState(0.5)
   const [viewMode, setViewMode] = useState<ViewMode>('split')
   const containerRef = useRef<HTMLDivElement>(null)
@@ -99,7 +117,7 @@ export function SplitLayout({ left, right, showToolbar, onToggleToolbar, showFoo
       )}
       <div
         role={isSplit ? 'separator' : undefined}
-        aria-label={isSplit ? 'Redimensionar paneles' : undefined}
+        aria-label={isSplit ? t('splitResizeAria') : undefined}
         tabIndex={isSplit ? 0 : undefined}
         onMouseDown={isSplit ? onDragStart : undefined}
         style={{
@@ -114,7 +132,7 @@ export function SplitLayout({ left, right, showToolbar, onToggleToolbar, showFoo
         <div className={`split-controls ${controlsPosition}`}>
           <button
             onClick={onToggleToolbar}
-            aria-label={showToolbar ? 'Ocultar barra de navegación' : 'Mostrar barra de navegación'}
+            aria-label={showToolbar ? t('splitHideToolbarAria') : t('splitShowToolbarAria')}
             className="split-control-button"
           >
             <BarIcon top={showToolbar} />
@@ -122,7 +140,7 @@ export function SplitLayout({ left, right, showToolbar, onToggleToolbar, showFoo
           {isSplit && (
             <button
               onClick={() => setViewMode('editor')}
-              aria-label="Mostrar solo editor"
+              aria-label={t('splitShowEditorOnlyAria')}
               className="split-control-button"
             >
               <PaneIcon right />
@@ -130,15 +148,26 @@ export function SplitLayout({ left, right, showToolbar, onToggleToolbar, showFoo
           )}
           <button
             onClick={onCopy}
-            aria-label={copyFeedback ? 'Copiado' : 'Copiar todo el Código Markdown'}
+            aria-label={copyFeedback ? t('splitCopiedAria') : t('splitCopyAllAria')}
             className="split-control-button"
           >
             <CopyIcon done={copyFeedback} />
           </button>
+          {isSplit && (
+            <button
+              onClick={() => onSyncScrollChange(!syncScroll)}
+              aria-label={syncScroll ? t('splitSyncScrollOnAria') : t('splitSyncScrollOffAria')}
+              aria-pressed={syncScroll}
+              className="split-control-button"
+              style={{ opacity: syncScroll ? 1 : 0.45 }}
+            >
+              <SyncScrollIcon />
+            </button>
+          )}
           {isSplit ? (
             <button
               onClick={() => setViewMode('preview')}
-              aria-label="Mostrar solo preview"
+              aria-label={t('splitShowPreviewOnlyAria')}
               className="split-control-button"
             >
               <PaneIcon left />
@@ -146,7 +175,7 @@ export function SplitLayout({ left, right, showToolbar, onToggleToolbar, showFoo
           ) : (
             <button
               onClick={() => setViewMode('split')}
-              aria-label="Mostrar vista dividida"
+              aria-label={t('splitShowSplitViewAria')}
               className="split-control-button"
             >
               <PaneIcon left right />
@@ -154,7 +183,7 @@ export function SplitLayout({ left, right, showToolbar, onToggleToolbar, showFoo
           )}
           <button
             onClick={onToggleFooter}
-            aria-label={showFooter ? 'Ocultar barra de estado' : 'Mostrar barra de estado'}
+            aria-label={showFooter ? t('splitHideFooterAria') : t('splitShowFooterAria')}
             className="split-control-button"
           >
             <BarIcon top={!showFooter} />

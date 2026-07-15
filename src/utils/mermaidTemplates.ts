@@ -1,6 +1,8 @@
 // Plantillas de diagramas Mermaid para el diálogo de inserción.
 // `def` es el código Mermaid sin fences; envolver con asMermaidBlock() al insertar.
 
+import { t } from '../i18n'
+
 export type MermaidTemplate = {
   category: string
   label: string
@@ -17,7 +19,7 @@ export function asMermaidBlock(def: string): string {
 export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   // ── Diagramas de proceso y flujo ──
   {
-    category: 'Diagramas de proceso y flujo',
+    category: t('mermaidCategoryProcess'),
     label: 'Flowchart horizontal',
     def: `graph LR
   subgraph Izquierda
@@ -33,7 +35,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   A --> D`,
   },
   {
-    category: 'Diagramas de proceso y flujo',
+    category: t('mermaidCategoryProcess'),
     label: 'Sequence diagram',
     def: `sequenceDiagram
   participant A as Ana
@@ -42,7 +44,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   B-->>A: Enviado ayer`,
   },
   {
-    category: 'Diagramas de proceso y flujo',
+    category: t('mermaidCategoryProcess'),
     label: 'State diagram',
     def: `stateDiagram-v2
   [*] --> Borrador
@@ -52,7 +54,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   Publicado --> [*]`,
   },
   {
-    category: 'Diagramas de proceso y flujo',
+    category: t('mermaidCategoryProcess'),
     label: 'User Journey',
     def: `journey
   title Mi jornada de trabajo
@@ -64,7 +66,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
     Programar: 5: Yo`,
   },
   {
-    category: 'Diagramas de proceso y flujo',
+    category: t('mermaidCategoryProcess'),
     label: 'Kanban',
     def: `kanban
   Por hacer
@@ -76,7 +78,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   },
   // ── Datos y estructura ──
   {
-    category: 'Datos y estructura',
+    category: t('mermaidCategoryData'),
     label: 'ER diagram',
     def: `erDiagram
   CLIENTE ||--o{ PEDIDO : realiza
@@ -87,7 +89,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   }`,
   },
   {
-    category: 'Datos y estructura',
+    category: t('mermaidCategoryData'),
     label: 'XY chart',
     def: `xychart-beta
   title "Ventas por mes"
@@ -97,7 +99,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   line [30, 55, 42, 70]`,
   },
   {
-    category: 'Datos y estructura',
+    category: t('mermaidCategoryData'),
     label: 'Pie chart',
     def: `pie title Lenguajes
   "TypeScript" : 60
@@ -106,7 +108,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   },
   // ── Planificación y proyectos ──
   {
-    category: 'Planificación y proyectos',
+    category: t('mermaidCategoryPlanning'),
     label: 'Gantt chart',
     def: `gantt
   title Proyecto
@@ -118,7 +120,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
     Pruebas: 2026-07-22, 5d`,
   },
   {
-    category: 'Planificación y proyectos',
+    category: t('mermaidCategoryPlanning'),
     label: 'Git graph',
     def: `gitGraph
   commit
@@ -130,7 +132,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   commit`,
   },
   {
-    category: 'Planificación y proyectos',
+    category: t('mermaidCategoryPlanning'),
     label: 'Timeline',
     def: `timeline
   title Historia del producto
@@ -139,7 +141,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   2026 : Lanzamiento`,
   },
   {
-    category: 'Planificación y proyectos',
+    category: t('mermaidCategoryPlanning'),
     label: 'Mindmap',
     def: `mindmap
   root((Idea))
@@ -150,7 +152,7 @@ export const MERMAID_TEMPLATES: MermaidTemplate[] = [
   },
   // ── Arquitectura ──
   {
-    category: 'Arquitectura',
+    category: t('mermaidCategoryArchitecture'),
     label: 'Block diagram',
     def: `block-beta
   columns 3

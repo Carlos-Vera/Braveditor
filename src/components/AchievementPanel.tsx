@@ -1,8 +1,10 @@
 import { useState } from 'react'
+import { Dialog, Tabs } from '@radix-ui/themes'
 import type { AchievementProgress, AchievementCategory, UserStats, StreakState } from '../types/gamification'
 import { ACHIEVEMENT_DEFS } from '../utils/achievementDefs'
 import { getLevelTitle, computeLevel, LEVEL_TIERS } from '../utils/gamification'
 import { StreakCalendar } from './StreakCalendar'
+import { t } from '../i18n'
 
 type AchievementPanelProps = {
   achievements: AchievementProgress[]
@@ -14,21 +16,22 @@ type AchievementPanelProps = {
 }
 
 const CATEGORIES: { key: AchievementCategory | 'levels'; label: string }[] = [
-  { key: 'writing', label: 'Escritura' },
-  { key: 'markdown', label: 'Markdown' },
-  { key: 'productivity', label: 'Productividad' },
-  { key: 'special', label: 'Especial' },
-  { key: 'levels', label: 'Niveles' },
+  { key: 'writing', label: t('achCategoryWriting') },
+  { key: 'markdown', label: t('achCategoryMarkdown') },
+  { key: 'productivity', label: t('achCategoryProductivity') },
+  { key: 'special', label: t('achCategorySpecial') },
+  { key: 'levels', label: t('achCategoryLevels') },
 ]
 
-// Icono/color por rango; los umbrales viven en LEVEL_TIERS (única fuente)
+// Icono/color por rango; los umbrales viven en LEVEL_TIERS (única fuente).
+// Claves calculadas con t() para que coincidan con los títulos traducidos de LEVEL_TIERS.
 const TIER_STYLE: Record<string, { icon: string; color: string }> = {
-  Aprendiz: { icon: '📝', color: '#8b8b8b' },
-  Escritor: { icon: '✏️', color: '#4a9eff' },
-  Autor: { icon: '📖', color: '#9b59b6' },
-  Maestro: { icon: '🏆', color: '#f39c12' },
-  Leyenda: { icon: '⭐', color: '#e74c3c' },
-  'Gran Maestro': { icon: '👑', color: '#c0392b' },
+  [t('levelApprentice')]: { icon: '📝', color: '#8b8b8b' },
+  [t('levelWriter')]: { icon: '✏️', color: '#4a9eff' },
+  [t('levelAuthor')]: { icon: '📖', color: '#9b59b6' },
+  [t('levelMaster')]: { icon: '🏆', color: '#f39c12' },
+  [t('levelLegend')]: { icon: '⭐', color: '#e74c3c' },
+  [t('levelGrandMaster')]: { icon: '👑', color: '#c0392b' },
 }
 
 const LEVEL_RANGES = LEVEL_TIERS.map((tier, i) => {
@@ -53,44 +56,23 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
   const unlockedCount = ACHIEVEMENT_DEFS.filter((d) => getProgress(d.id).unlocked).length
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: 20,
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: 'var(--bg-primary)',
-          border: '1px solid var(--border)',
-          borderRadius: 8,
-          padding: '24px 32px',
-          maxWidth: 700,
-          width: '95vw',
-          maxHeight: '90vh',
-          overflow: 'auto',
-          color: 'var(--text)',
-        }}
-        onClick={(e) => e.stopPropagation()}
+    <Dialog.Root open onOpenChange={(open) => { if (!open) onClose() }}>
+      <Dialog.Content
+        maxWidth="700px"
+        width="95vw"
+        aria-describedby={undefined}
+        style={{ maxHeight: '90vh', overflow: 'auto' }}
       >
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-          <h2 style={{ margin: 0, fontSize: 22 }}>
-            🏆 Logros ({unlockedCount}/{ACHIEVEMENT_DEFS.length})
-          </h2>
-          <button type="button" className="btn" style={{ fontSize: 18, padding: '4px 12px' }} onClick={onClose}>
-            ✕
-          </button>
+          <Dialog.Title style={{ margin: 0, fontSize: 22 }}>
+            🏆 {t('achDialogTitle')} ({unlockedCount}/{ACHIEVEMENT_DEFS.length})
+          </Dialog.Title>
+          <Dialog.Close>
+            <button type="button" className="btn" style={{ fontSize: 18, padding: '4px 12px' }}>
+              ✕
+            </button>
+          </Dialog.Close>
         </div>
 
         {/* Stats summary */}
@@ -106,26 +88,26 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
           }}
         >
           <div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Nivel</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('achLevelWord')}</div>
             <div style={{ fontWeight: 600 }}>
               {level} - {getLevelTitle(level)}
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>XP Total</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('achStatXpTotal')}</div>
             <div style={{ fontWeight: 600 }}>{stats.totalXP.toLocaleString()}</div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Palabras</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('achStatWords')}</div>
             <div style={{ fontWeight: 600 }}>{stats.totalWordsWritten.toLocaleString()}</div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Guardados</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('achStatSaved')}</div>
             <div style={{ fontWeight: 600 }}>{stats.totalDocsSaved}</div>
           </div>
           <div>
-            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>Racha</div>
-            <div style={{ fontWeight: 600 }}>🔥 {streak.currentStreak} (Máx: {streak.longestStreak})</div>
+            <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>{t('achStatStreak')}</div>
+            <div style={{ fontWeight: 600 }}>🔥 {streak.currentStreak} ({t('achMaxLabel')} {streak.longestStreak})</div>
           </div>
         </div>
 
@@ -135,19 +117,18 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
         </div>
 
         {/* Category tabs */}
-        <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.key}
-              type="button"
-              className="btn"
-              style={activeTab === cat.key ? { background: '#01b7af', color: '#000', fontWeight: 700 } : undefined}
-              onClick={() => setActiveTab(cat.key)}
-            >
-              {cat.label}
-            </button>
-          ))}
-        </div>
+        <Tabs.Root
+          value={activeTab}
+          onValueChange={(value) => setActiveTab(value as AchievementCategory | 'levels')}
+        >
+          <Tabs.List style={{ marginBottom: 16 }}>
+            {CATEGORIES.map((cat) => (
+              <Tabs.Trigger key={cat.key} value={cat.key}>
+                {cat.label}
+              </Tabs.Trigger>
+            ))}
+          </Tabs.List>
+        </Tabs.Root>
 
         {/* Achievement list or Level ranges */}
         {activeTab === 'levels' ? (
@@ -176,11 +157,11 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                       <span style={{ fontWeight: 600, fontSize: 14 }}>{levelRange.title}</span>
                       <span style={{ fontSize: 11, color: isCurrentRange ? '#01b7af' : 'var(--text-muted)' }}>
-                        {isCurrentRange ? `✓ Nivel ${level}` : `Niveles ${levelRange.range}`}
+                        {isCurrentRange ? `✓ ${t('achLevelWord')} ${level}` : `${t('achCategoryLevels')} ${levelRange.range}`}
                       </span>
                     </div>
                     <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
-                      Niveles {levelRange.range}
+                      {t('achCategoryLevels')} {levelRange.range}
                     </div>
                   </div>
                 </div>
@@ -257,17 +238,17 @@ export function AchievementPanel({ achievements, stats, streak, onClose, onToggl
             alignItems: 'center',
           }}
         >
-          <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>Sistema de gamificación</span>
+          <span style={{ fontSize: 13, color: 'var(--text-muted)' }}>{t('achGamificationSystemLabel')}</span>
           <button
             type="button"
             className="btn"
             style={enabled ? { background: '#01b7af', color: '#000' } : undefined}
             onClick={onToggleEnabled}
           >
-            {enabled ? 'Activado' : 'Desactivado'}
+            {enabled ? t('achEnabledLabel') : t('achDisabledLabel')}
           </button>
         </div>
-      </div>
-    </div>
+      </Dialog.Content>
+    </Dialog.Root>
   )
 }

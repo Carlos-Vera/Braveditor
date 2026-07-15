@@ -1,4 +1,5 @@
 import { useRef, useState, useCallback, useMemo, useEffect } from 'react'
+import { t } from './i18n'
 import { useMarkdown, INITIAL } from './hooks/useMarkdown'
 import { useGamification } from './hooks/useGamification'
 import { Toolbar } from './components/Toolbar'
@@ -10,7 +11,7 @@ import { XPBar } from './components/XPBar'
 import { StreakCounter } from './components/StreakCounter'
 import { AchievementToast } from './components/AchievementToast'
 import { AchievementPanel } from './components/AchievementPanel'
-import { downloadMarkdown, readFileAsText } from './utils/fileHandling'
+import { downloadMarkdown, readFileAsText, supportsFilePickers, openMarkdownFile, writeMarkdownFile, pickSaveHandle } from './utils/fileHandling'
 import { getLineColumn, getTotalLines, getByteLength, getWordCount, getPreviewStats } from './utils/editorPosition'
 import { getStreakMultiplier, todayStr } from './utils/gamification'
 import type { EditorSelection } from './types'
@@ -22,7 +23,7 @@ export default function App() {
   const previewRef = useRef<HTMLDivElement | null>(null)
   const fileInputRef = useRef<HTMLInputElement | null>(null)
   const [selection, setSelection] = useState<EditorSelection>({ start: 0, end: 0 })
-  const [filename, setFilename] = useState(() => localStorage.getItem('braveditor-filename') ?? 'documento.md')
+  const [filename, setFilename] = useState(() => localStorage.getItem('braveditor-filename') ?? t('appDefaultFilename'))
   const [copyFeedback, setCopyFeedback] = useState(false)
   const [syncScroll, setSyncScroll] = useState(true)
   const [showToolbar, setShowToolbar] = useState(true)
@@ -69,15 +70,30 @@ export default function App() {
     [raw, selection, setContent]
   )
 
+  // Handle del archivo abierto/guardado en disco (File System Access API)
+  const fileHandleRef = useRef<FileSystemFileHandle | null>(null)
+
   const onNew = useCallback(() => {
-    if (raw.trim() && !window.confirm('¿Descartar el documento actual?')) return
+    if (raw.trim() && !window.confirm(t('appConfirmDiscard'))) return
     setContent(INITIAL)
-    setFilename('documento.md')
+    setFilename(t('appDefaultFilename'))
+    fileHandleRef.current = null
   }, [raw, setContent])
 
   const onOpenClick = useCallback(() => {
+    if (supportsFilePickers()) {
+      openMarkdownFile()
+        .then((result) => {
+          if (!result) return
+          fileHandleRef.current = result.handle
+          setContent(result.text)
+          setFilename(result.handle.name)
+        })
+        .catch(() => { /* picker cancelado */ })
+      return
+    }
     fileInputRef.current?.click()
-  }, [])
+  }, [setContent])
 
   const onFileChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -85,7 +101,7 @@ export default function App() {
       if (!file) return
       readFileAsText(file).then((text) => {
         setContent(text)
-        setFilename(file.name || 'documento.md')
+        setFilename(file.name || t('appDefaultFilename'))
       })
       e.target.value = ''
     },
@@ -95,6 +111,25 @@ export default function App() {
   const onSave = useCallback(() => {
     downloadMarkdown(raw, filename)
     trackSave(getWordCount(raw))
+  }, [raw, filename, trackSave])
+
+  // Actualizar: sobrescribe el archivo abierto; si no hay handle, lo pide una vez
+  const onUpdate = useCallback(async () => {
+    try {
+      if (!fileHandleRef.current) {
+        const handle = await pickSaveHandle(filename)
+        if (!handle) {
+          // ponytail: sin File System Access API (Safari/Firefox) cae a descarga normal
+          downloadMarkdown(raw, filename)
+          trackSave(getWordCount(raw))
+          return
+        }
+        fileHandleRef.current = handle
+        setFilename(handle.name)
+      }
+      await writeMarkdownFile(fileHandleRef.current, raw)
+      trackSave(getWordCount(raw))
+    } catch { /* picker cancelado */ }
   }, [raw, filename, trackSave])
 
   const onCopy = useCallback(async () => {
@@ -112,7 +147,7 @@ export default function App() {
     // porque 'selection.end' es un offset en ese mismo texto
     const { line, column } = getLineColumn(raw, selection.end)
     return {
-      codeType: 'Markdown',
+      codeType: t('statusCodeType'),
       bytes: getByteLength(raw),
       words: getWordCount(raw),
       lines: getTotalLines(raw),
@@ -138,7 +173,7 @@ export default function App() {
   const todayQualified = gamState.streak.days.find((d) => d.date === todayStr())?.qualified ?? false
   const streakMultiplier = getStreakMultiplier(gamState.streak.currentStreak)
 
-  const streakWidget = gamState.enabled ? (
+  const streak = gamState.enabled ? (
     <StreakCounter
       currentStreak={gamState.streak.currentStreak}
       multiplier={streakMultiplier}
@@ -169,12 +204,10 @@ export default function App() {
           onNew={onNew}
           onOpenClick={onOpenClick}
           onSave={onSave}
-          syncScroll={syncScroll}
-          onSyncScrollChange={setSyncScroll}
+          onUpdate={onUpdate}
           onInsertText={onInsertText}
           onFormatAction={trackFormat}
           onShowAchievements={() => setShowAchievements(true)}
-          streakWidget={streakWidget}
           filename={filename}
         />
       )}
@@ -186,6 +219,8 @@ export default function App() {
           onToggleFooter={() => setShowFooter(!showFooter)}
           onCopy={onCopy}
           copyFeedback={copyFeedback}
+          syncScroll={syncScroll}
+          onSyncScrollChange={setSyncScroll}
           left={
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0 }}>
               <EditorPane
@@ -204,6 +239,7 @@ export default function App() {
           <EditorStatusBar
             codeStats={codeStats}
             previewStats={previewStats}
+            streak={streak}
             xpBar={xpBar}
             onXPClick={() => setShowAchievements(true)}
           />

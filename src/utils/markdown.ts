@@ -11,7 +11,7 @@ const ALLOWED_TAGS = ['p', 'br', 'strong', 'em', 'h1', 'h2', 'h3', 'h4', 'h5', '
 
 // Renderiza bloque por bloque inyectando data-source-line (1-based) en cada
 // elemento de nivel superior, para anclar el scroll editor<->preview por línea.
-export async function markdownToHtmlAsync(md: string): Promise<string> {
+export function markdownToHtml(md: string): string {
   const tokens = marked.lexer(md)
   let line = 1
   let html = ''

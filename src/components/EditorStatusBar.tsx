@@ -1,3 +1,5 @@
+import { t } from '../i18n'
+
 export type CodeStats = {
   codeType: string
   bytes: number
@@ -18,6 +20,7 @@ export type PreviewStats = {
 type EditorStatusBarProps = {
   codeStats: CodeStats
   previewStats: PreviewStats
+  streak?: React.ReactNode
   xpBar?: React.ReactNode
   onXPClick?: () => void
 }
@@ -42,37 +45,40 @@ const sectionStyle: React.CSSProperties = {
   gap: 12,
 }
 
-export function EditorStatusBar({ codeStats, previewStats, xpBar, onXPClick }: EditorStatusBarProps) {
+export function EditorStatusBar({ codeStats, previewStats, streak, xpBar, onXPClick }: EditorStatusBarProps) {
   return (
     <footer
       role="status"
-      aria-label="Información del editor"
+      aria-label={t('statusFooterAria')}
       style={barStyle}
     >
-      <section style={sectionStyle} aria-label="Estadísticas del editor">
+      <section style={sectionStyle} aria-label={t('statusEditorStatsAria')}>
         <span>{codeStats.codeType}</span>
-        <span>{codeStats.charactersWithSpaces} caract. c/espacios</span>
-        <span>{codeStats.charactersWithoutSpaces} caract. s/espacios</span>
-        <span>{codeStats.words} palabras</span>
-        <span>{codeStats.lines} líneas</span>
-        <span>Ln {codeStats.line}, Col {codeStats.column}</span>
+        <span>{codeStats.charactersWithSpaces} {t('statusCharsWithSpaces')}</span>
+        <span>{codeStats.charactersWithoutSpaces} {t('statusCharsWithoutSpaces')}</span>
+        <span>{codeStats.words} {t('words')}</span>
+        <span>{codeStats.lines} {t('lines')}</span>
+        <span>{t('statusLn')} {codeStats.line}, {t('statusCol')} {codeStats.column}</span>
       </section>
 
       <span style={{ flex: 1, minWidth: 16 }} />
 
-      <div
-        onClick={onXPClick}
-        style={{ cursor: onXPClick ? 'pointer' : 'default' }}
-      >
-        {xpBar}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        {streak}
+        <div
+          onClick={onXPClick}
+          style={{ cursor: onXPClick ? 'pointer' : 'default' }}
+        >
+          {xpBar}
+        </div>
       </div>
 
       <span style={{ flex: 1, minWidth: 16 }} />
 
-      <section style={sectionStyle} aria-label="Estadísticas de la preview">
-        <span>{previewStats.characters} caracteres</span>
-        <span>{previewStats.words} palabras</span>
-        <span>{previewStats.paragraphs} párrafo{previewStats.paragraphs !== 1 ? 's' : ''}</span>
+      <section style={sectionStyle} aria-label={t('statusPreviewStatsAria')}>
+        <span>{previewStats.characters} {t('characters')}</span>
+        <span>{previewStats.words} {t('words')}</span>
+        <span>{previewStats.paragraphs} {previewStats.paragraphs !== 1 ? t('paragraphs') : t('paragraph')}</span>
       </section>
     </footer>
   )

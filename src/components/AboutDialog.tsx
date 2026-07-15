@@ -1,43 +1,17 @@
+import { Dialog } from '@radix-ui/themes'
+import { t } from '../i18n'
+
 type AboutDialogProps = {
   isOpen: boolean
   onClose: () => void
 }
 
 export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
-  if (!isOpen) return null
-
   return (
-    <div
-      style={{
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        background: 'rgba(0, 0, 0, 0.7)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        zIndex: 1000,
-        padding: 20,
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: 'var(--bg-primary)',
-          border: '1px solid var(--border)',
-          borderRadius: 8,
-          padding: 0,
-          maxWidth: 700,
-          width: '90vw',
-          maxHeight: '85vh',
-          overflow: 'hidden',
-          color: 'var(--text)',
-          display: 'flex',
-          flexDirection: 'column',
-        }}
-        onClick={(e) => e.stopPropagation()}
+    <Dialog.Root open={isOpen} onOpenChange={(open) => { if (!open) onClose() }}>
+      <Dialog.Content
+        maxWidth="700px"
+        style={{ padding: 0, overflow: 'hidden', display: 'flex', flexDirection: 'column', maxHeight: '85vh' }}
       >
         {/* Header */}
         <div
@@ -55,18 +29,21 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
               <img src="/Braves.svg" alt="Braveditor" style={{ height: 36, cursor: 'pointer' }} />
             </a>
             <div>
-              <h2 style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>BraveEditor</h2>
-              <p style={{ margin: 0, fontSize: 12, color: 'var(--text-secondary)' }}>Versión {__APP_VERSION__}</p>
+              <Dialog.Title style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>BraveEditor</Dialog.Title>
+              <Dialog.Description style={{ margin: 0, fontSize: 12, color: 'var(--text-secondary)' }}>
+                {t('aboutVersionLabel')} {__APP_VERSION__}
+              </Dialog.Description>
             </div>
           </div>
-          <button
-            type="button"
-            className="btn"
-            style={{ fontSize: 18, padding: '4px 12px' }}
-            onClick={onClose}
-          >
-            ✕
-          </button>
+          <Dialog.Close>
+            <button
+              type="button"
+              className="btn"
+              style={{ fontSize: 18, padding: '4px 12px' }}
+            >
+              ✕
+            </button>
+          </Dialog.Close>
         </div>
 
         {/* Content */}
@@ -78,31 +55,30 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
           }}
         >
           <div style={{ lineHeight: 1.8 }}>
-            <h3 style={{ marginTop: 0, fontSize: 18, marginBottom: 16 }}>Editor Markdown profesional con gamificación</h3>
+            <h3 style={{ marginTop: 0, fontSize: 18, marginBottom: 16 }}>{t('aboutTagline')}</h3>
 
             <p style={{ color: 'var(--text-secondary)', marginBottom: 24 }}>
-              Editor Markdown minimalista y potente con preview en tiempo real, diseñado para escritores y desarrolladores
-              que buscan productividad y motivación mediante un sistema de gamificación integrado.
+              {t('aboutDescription')}
             </p>
 
-            <h4 style={{ fontSize: 16, marginBottom: 12, marginTop: 24 }}>Funcionalidades principales:</h4>
+            <h4 style={{ fontSize: 16, marginBottom: 12, marginTop: 24 }}>{t('aboutFeaturesTitle')}</h4>
             <ul style={{ color: 'var(--text-secondary)', marginLeft: 20, marginBottom: 24 }}>
-              <li>✍️ Editor de código basado en CodeMirror 6 con syntax highlighting</li>
-              <li>👁️ Preview en tiempo real con renderizado Markdown</li>
-              <li>⚡ Sincronización de scroll entre editor y preview</li>
-              <li>🎯 Sistema de gamificación con XP, niveles y logros</li>
-              <li>🔥 Tracking de rachas de escritura diaria</li>
-              <li>📊 Estadísticas detalladas de palabras y tiempo de escritura</li>
-              <li>🎨 Tema oscuro optimizado para largas sesiones</li>
-              <li>💾 Autoguardado y gestión de archivos .md</li>
-              <li>📝 Guía interactiva de sintaxis Markdown</li>
-              <li>🏆 Panel de logros con badges desbloqueables</li>
-              <li>🔒 Sanitización de HTML para seguridad</li>
-              <li>⌨️ Atajos de teclado para formato rápido</li>
+              <li>{t('aboutFeature1')}</li>
+              <li>{t('aboutFeature2')}</li>
+              <li>{t('aboutFeature3')}</li>
+              <li>{t('aboutFeature4')}</li>
+              <li>{t('aboutFeature5')}</li>
+              <li>{t('aboutFeature6')}</li>
+              <li>{t('aboutFeature7')}</li>
+              <li>{t('aboutFeature8')}</li>
+              <li>{t('aboutFeature9')}</li>
+              <li>{t('aboutFeature10')}</li>
+              <li>{t('aboutFeature11')}</li>
+              <li>{t('aboutFeature12')}</li>
             </ul>
 
             <div style={{ marginTop: 32, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
-              <h4 style={{ fontSize: 16, marginBottom: 16 }}>Creado por:</h4>
+              <h4 style={{ fontSize: 16, marginBottom: 16 }}>{t('aboutCreatedByTitle')}</h4>
               <p style={{ margin: '8px 0', color: 'var(--text-secondary)' }}>
                 <a
                   href="https://www.linkedin.com/in/soycarlosvera/"
@@ -112,10 +88,10 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
                 >
                   <strong>Carlos Vera</strong>
                 </a>
-                {' '}- Desarrollador Principal
+                {' '}- {t('aboutRoleDeveloper')}
               </p>
               <p style={{ margin: '8px 0', color: 'var(--text-secondary)' }}>
-                <strong>Jean Paul Vera Bravo</strong> - Colaborador
+                <strong>Jean Paul Vera Bravo</strong> - {t('aboutRoleCollaborator')}
               </p>
               <p style={{ margin: '16px 0 8px 0', color: 'var(--text-secondary)' }}>
                 <strong>Braves Labs LLC</strong>
@@ -123,7 +99,7 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
             </div>
 
             <div style={{ marginTop: 24, paddingTop: 24, borderTop: '1px solid var(--border)' }}>
-              <h4 style={{ fontSize: 16, marginBottom: 12 }}>Licencia:</h4>
+              <h4 style={{ fontSize: 16, marginBottom: 12 }}>{t('aboutLicenseTitle')}</h4>
               <p style={{ color: 'var(--text-secondary)', marginBottom: 16 }}>
                 <a
                   href="https://www.apache.org/licenses/LICENSE-2.0"
@@ -135,7 +111,7 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
                 </a>
               </p>
 
-              <h4 style={{ fontSize: 16, marginBottom: 12 }}>Enlaces:</h4>
+              <h4 style={{ fontSize: 16, marginBottom: 12 }}>{t('aboutLinksTitle')}</h4>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                 <a
                   href="https://github.com/Carlos-Vera/Braveditor"
@@ -143,7 +119,7 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
                   rel="noopener noreferrer"
                   style={{ color: 'var(--text-link)', textDecoration: 'none' }}
                 >
-                  📦 Repositorio GitHub
+                  {t('aboutLinkRepo')}
                 </a>
                 <a
                   href="https://braveslab.com"
@@ -183,9 +159,9 @@ export function AboutDialog({ isOpen, onClose }: AboutDialogProps) {
           >
             Braves Labs LLC
           </a>
-          . Todos los derechos reservados.
+          . {t('aboutRightsReserved')}
         </div>
-      </div>
-    </div>
+      </Dialog.Content>
+    </Dialog.Root>
   )
 }

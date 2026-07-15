@@ -1,4 +1,5 @@
 import type { StreakDay } from '../types/gamification'
+import { t } from '../i18n'
 
 type StreakCalendarProps = {
   days: StreakDay[]
@@ -18,7 +19,7 @@ export function StreakCalendar({ days }: StreakCalendarProps) {
   return (
     <div>
       <h4 style={{ margin: '0 0 8px', fontSize: 13, color: 'var(--text-muted)' }}>
-        Últimos 30 días
+        {t('streakCalendarTitle')}
       </h4>
       <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
         {grid.map((cell) => {
@@ -29,7 +30,7 @@ export function StreakCalendar({ days }: StreakCalendarProps) {
           return (
             <div
               key={cell.date}
-              title={`${cell.date}: ${cell.day ? `${cell.day.wordsWritten} palabras` : 'Sin actividad'}`}
+              title={`${cell.date}: ${cell.day ? `${cell.day.wordsWritten} ${t('words')}` : t('streakNoActivity')}`}
               style={{
                 width: 14,
                 height: 14,

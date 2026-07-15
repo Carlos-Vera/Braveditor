@@ -2,6 +2,8 @@ import { forwardRef, useEffect, useRef, useImperativeHandle, useState } from 're
 import mermaid from 'mermaid'
 import elkLayouts from '@mermaid-js/layout-elk'
 import svgPanZoom from 'svg-pan-zoom'
+import { FontPicker } from './FontPicker'
+import { t } from '../i18n'
 
 // Layout ELK: líneas rectas ortogonales y mínimo de cruces entre aristas
 mermaid.registerLayoutLoaders(elkLayouts)
@@ -237,9 +239,9 @@ export const PreviewPane = forwardRef<HTMLDivElement, PreviewPaneProps>(
 
         const button = document.createElement('button')
         button.className = 'copy-code-button'
-        button.setAttribute('aria-label', 'Copiar código')
+        button.setAttribute('aria-label', t('previewCopyCode'))
         button.innerHTML = COPY_ICON
-        button.title = 'Copiar código'
+        button.title = t('previewCopyCode')
 
         const wrapper = document.createElement('div')
         wrapper.className = 'code-block-wrapper'
@@ -315,7 +317,7 @@ export const PreviewPane = forwardRef<HTMLDivElement, PreviewPaneProps>(
 
             const expandBtn = document.createElement('button')
             expandBtn.className = 'btn'
-            expandBtn.setAttribute('aria-label', 'Expandir diagrama')
+            expandBtn.setAttribute('aria-label', t('previewExpandDiagramAria'))
             expandBtn.innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>`
             expandBtn.addEventListener('click', () => setExpandedSvg(svg))
             toolbar.appendChild(expandBtn)
@@ -339,14 +341,17 @@ export const PreviewPane = forwardRef<HTMLDivElement, PreviewPaneProps>(
 
     return (
       <>
-        <div style={{ display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'auto', background: 'var(--bg-secondary)' }}>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', height: '100%', minHeight: 0, overflow: 'auto', background: 'var(--bg-secondary)' }}>
+          <div style={{ position: 'absolute', top: 8, right: 12, zIndex: 20 }}>
+            <FontPicker />
+          </div>
           <div
             ref={containerRef}
             className="preview-content"
             role="region"
-            aria-label="Vista previa del Markdown"
+            aria-label={t('previewRegionAria')}
             style={{ flex: 1, padding: '1rem', overflow: 'auto' }}
-            dangerouslySetInnerHTML={{ __html: html || '<p class="preview-placeholder" style="color:var(--text-muted)">Tu vista previa aparecerá aquí.</p>' }}
+            dangerouslySetInnerHTML={{ __html: html || `<p class="preview-placeholder" style="color:var(--text-muted)">${t('previewPlaceholder')}</p>` }}
           />
         </div>
 
@@ -364,28 +369,28 @@ export const PreviewPane = forwardRef<HTMLDivElement, PreviewPaneProps>(
               <button
                 className="btn"
                 onClick={() => panZoomRef.current?.zoomBy(1.5)}
-                aria-label="Acercar"
-                title="Acercar 50%"
+                aria-label={t('previewZoomInAria')}
+                title={t('previewZoomInTitle')}
                 dangerouslySetInnerHTML={{ __html: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="11" x2="11" y1="8" y2="14"/><line x1="8" x2="14" y1="11" y2="11"/></svg>` }}
               />
               <button
                 className="btn"
                 onClick={() => panZoomRef.current?.zoomBy(1 / 1.5)}
-                aria-label="Alejar"
-                title="Alejar 50%"
+                aria-label={t('previewZoomOutAria')}
+                title={t('previewZoomOutTitle')}
                 dangerouslySetInnerHTML={{ __html: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" x2="16.65" y1="21" y2="16.65"/><line x1="8" x2="14" y1="11" y2="11"/></svg>` }}
               />
               <button
                 className="btn"
                 onClick={resetView}
-                aria-label="Restablecer vista"
-                title="Posición y zoom inicial"
+                aria-label={t('previewResetViewAria')}
+                title={t('previewResetViewTitle')}
                 dangerouslySetInnerHTML={{ __html: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>` }}
               />
               <button
                 className="btn"
                 onClick={closeModal}
-                aria-label="Cerrar"
+                aria-label={t('previewCloseAria')}
               >
                 ✕
               </button>

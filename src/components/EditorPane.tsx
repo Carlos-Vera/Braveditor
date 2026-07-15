@@ -4,6 +4,7 @@ import { markdown } from '@codemirror/lang-markdown'
 import { EditorView, placeholder } from '@codemirror/view'
 import { tags as t } from '@lezer/highlight'
 import { createTheme } from '@uiw/codemirror-themes'
+import { t as translate } from '../i18n'
 import type { EditorSelection } from '../types'
 
 export type EditorPaneHandle = {
@@ -110,7 +111,7 @@ const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(functi
   const extensions = [
     markdown(),
     EditorView.lineWrapping,
-    placeholder('Escribe aquí tu código...'),
+    placeholder(translate('editorPlaceholder')),
     EditorView.updateListener.of((update) => {
       // Capturar cambios de selección (solo cuando cambia la selección, no por scroll)
       if (update.selectionSet && onSelect) {
@@ -132,7 +133,9 @@ const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(functi
     const previewDOM = previewRef.current
     let rafId: number | null = null
 
-    // Posición (relativa al contenido del preview) de cada bloque con data-source-line
+    // Posición (relativa al contenido del preview) de cada bloque con data-source-line.
+    // Se añade un ancla sintética al final del contenido para que el final del
+    // documento mapee exactamente con el final del preview.
     const getAnchors = (): Anchor[] => {
       const base = previewDOM.getBoundingClientRect().top - previewDOM.scrollTop
       const anchors: Anchor[] = []
@@ -140,26 +143,40 @@ const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(functi
         const line = Number(el.dataset.sourceLine)
         if (Number.isFinite(line)) anchors.push({ line, top: el.getBoundingClientRect().top - base })
       })
+      if (anchors.length) anchors.push({ line: view.state.doc.lines + 1, top: previewDOM.scrollHeight })
       return anchors
     }
 
+    // Fracción scrolleada [0..1] de un panel
+    const ratioOf = (el: HTMLElement): number => {
+      const max = el.scrollHeight - el.clientHeight
+      return max > 0 ? Math.min(1, Math.max(0, el.scrollTop / max)) : 0
+    }
+
+    // El mapeo por anclas usa un "punto de lectura" que baja por el viewport según
+    // avanza el scroll (arriba al inicio, abajo al final): así el 0% y el 100% de
+    // un panel corresponden exactamente al 0% y 100% del otro, sin quedarse corto.
     const editorToPreview = () => {
       const anchors = getAnchors()
-      if (!anchors.length) return
-      const block = view.lineBlockAtHeight(editorDOM.scrollTop)
+      if (anchors.length < 2) return
+      const r = ratioOf(editorDOM)
+      const readY = editorDOM.scrollTop + r * editorDOM.clientHeight
+      const block = view.lineBlockAtHeight(readY)
       const line = view.state.doc.lineAt(block.from).number
-      const frac = block.height > 0 ? Math.min(1, Math.max(0, (editorDOM.scrollTop - block.top) / block.height)) : 0
-      previewDOM.scrollTop = lineToTop(anchors, line + frac)
+      const frac = block.height > 0 ? Math.min(1, Math.max(0, (readY - block.top) / block.height)) : 0
+      previewDOM.scrollTop = lineToTop(anchors, line + frac) - r * previewDOM.clientHeight
     }
 
     const previewToEditor = () => {
       const anchors = getAnchors()
-      if (!anchors.length) return
+      if (anchors.length < 2) return
       const doc = view.state.doc
-      const lineF = topToLine(anchors, previewDOM.scrollTop)
+      const r = ratioOf(previewDOM)
+      const readY = previewDOM.scrollTop + r * previewDOM.clientHeight
+      const lineF = topToLine(anchors, readY)
       const lineInt = Math.min(doc.lines, Math.max(1, Math.floor(lineF)))
       const block = view.lineBlockAt(doc.line(lineInt).from)
-      editorDOM.scrollTop = block.top + (lineF - lineInt) * block.height
+      editorDOM.scrollTop = block.top + (lineF - lineInt) * block.height - r * editorDOM.clientHeight
     }
 
     // isScrollingRef evita el bucle de eco entre ambos paneles

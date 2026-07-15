@@ -1,15 +1,16 @@
 import type { GamificationState, StreakState } from '../types/gamification'
+import { t } from '../i18n'
 
 const STORAGE_KEY = 'braveditor-gamification'
 
 // Nivel mínimo de cada rango: única fuente de verdad de los cortes de nivel
 export const LEVEL_TIERS = [
-  { min: 1, title: 'Aprendiz' },
-  { min: 50, title: 'Escritor' },
-  { min: 130, title: 'Autor' },
-  { min: 250, title: 'Maestro' },
-  { min: 600, title: 'Leyenda' },
-  { min: 1500, title: 'Gran Maestro' },
+  { min: 1, title: t('levelApprentice') },
+  { min: 50, title: t('levelWriter') },
+  { min: 130, title: t('levelAuthor') },
+  { min: 250, title: t('levelMaster') },
+  { min: 600, title: t('levelLegend') },
+  { min: 1500, title: t('levelGrandMaster') },
 ] as const
 
 export function getLevelTitle(level: number): string {

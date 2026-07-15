@@ -1,27 +1,13 @@
-import { useState, useEffect } from 'react'
-import { markdownToHtmlAsync } from '../utils/markdown'
+import { useMemo, useState, useEffect } from 'react'
+import { markdownToHtml } from '../utils/markdown'
 import { loadDraft, saveDraft } from '../utils/fileHandling'
+import { t } from '../i18n'
 
-export const INITIAL = `# Hola Braveditor
-
-Escribe **Markdown** aquí. La vista previa se actualiza en tiempo real.
-
-- Lista
-- De
-- Items
-`
+export const INITIAL = t('initialDocument')
 
 export function useMarkdown() {
   const [raw, setRaw] = useState(() => loadDraft() ?? INITIAL)
-  const [html, setHtml] = useState('')
-
-  useEffect(() => {
-    let cancelled = false
-    markdownToHtmlAsync(raw).then((out) => {
-      if (!cancelled) setHtml(out)
-    })
-    return () => { cancelled = true }
-  }, [raw])
+  const html = useMemo(() => markdownToHtml(raw), [raw])
 
   useEffect(() => {
     saveDraft(raw)
