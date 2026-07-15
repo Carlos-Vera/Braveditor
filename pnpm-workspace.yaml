@@ -1,0 +1,3 @@
+# pnpm 10 ya no lee la clave "pnpm" de package.json: overrides vive aquí.
+overrides:
+  minimatch: '>=10.2.1'
