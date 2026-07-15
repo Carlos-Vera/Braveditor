@@ -9,6 +9,9 @@ Editor Markdown profesional con preview en tiempo real y sistema de gamificació
 
 ## Características
 
+### Idiomas
+-  **El sistema reconoce y se adapta al idioma del navegador** - El sistema tiene 2 idiomas español e ingles
+
 ### Editor Profesional
 -  **Editor CodeMirror 6** - Experiencia de edición avanzada
 -  **Preview en tiempo real** - Visualiza tu Markdown instantáneamente
