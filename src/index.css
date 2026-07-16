@@ -382,6 +382,26 @@ header[role="toolbar"] button[aria-expanded="true"]:hover::after {
   border-radius: 8px;
 }
 
+/* Skeleton mientras mermaid renderiza (asíncrono): evita ver el código en crudo */
+.mermaid-skeleton {
+  height: 180px;
+  border-radius: 6px;
+  background: linear-gradient(100deg, var(--bg-secondary) 30%, rgba(255,255,255,0.06) 50%, var(--bg-secondary) 70%);
+  background-size: 200% 100%;
+  animation: mermaid-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes mermaid-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.mermaid-error {
+  color: var(--text-muted);
+  font-size: 0.9em;
+  text-align: center;
+}
+
 .mermaid-diagram-toolbar {
   position: absolute;
   top: 8px;

@@ -91,7 +91,6 @@ const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(functi
   { value, onChange, onSelect, previewRef, syncScroll = false },
   ref
 ) {
-  const isScrollingRef = useRef(false)
   const editorViewRef = useRef<EditorView | null>(null)
   const [editorReady, setEditorReady] = useState(false)
 
@@ -153,6 +152,16 @@ const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(functi
       return max > 0 ? Math.min(1, Math.max(0, el.scrollTop / max)) : 0
     }
 
+    // Fija scrollTop y devuelve true si realmente cambió (para armar la guarda
+    // de eco solo cuando va a saltar un evento scroll en el panel destino).
+    const setScrollTop = (el: HTMLElement, value: number): boolean => {
+      const max = el.scrollHeight - el.clientHeight
+      const target = Math.round(Math.max(0, Math.min(max, value)))
+      if (Math.abs(el.scrollTop - target) < 1) return false
+      el.scrollTop = target
+      return true
+    }
+
     // El mapeo por anclas usa un "punto de lectura" que baja por el viewport según
     // avanza el scroll (arriba al inicio, abajo al final): así el 0% y el 100% de
     // un panel corresponden exactamente al 0% y 100% del otro, sin quedarse corto.
@@ -164,7 +173,9 @@ const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(functi
       const block = view.lineBlockAtHeight(readY)
       const line = view.state.doc.lineAt(block.from).number
       const frac = block.height > 0 ? Math.min(1, Math.max(0, (readY - block.top) / block.height)) : 0
-      previewDOM.scrollTop = lineToTop(anchors, line + frac) - r * previewDOM.clientHeight
+      if (setScrollTop(previewDOM, lineToTop(anchors, line + frac) - r * previewDOM.clientHeight)) {
+        suppressPreview = true
+      }
     }
 
     const previewToEditor = () => {
@@ -176,26 +187,28 @@ const EditorPaneComponent = forwardRef<EditorPaneHandle, EditorPaneProps>(functi
       const lineF = topToLine(anchors, readY)
       const lineInt = Math.min(doc.lines, Math.max(1, Math.floor(lineF)))
       const block = view.lineBlockAt(doc.line(lineInt).from)
-      editorDOM.scrollTop = block.top + (lineF - lineInt) * block.height - r * editorDOM.clientHeight
+      if (setScrollTop(editorDOM, block.top + (lineF - lineInt) * block.height - r * editorDOM.clientHeight)) {
+        suppressEditor = true
+      }
     }
 
-    // isScrollingRef evita el bucle de eco entre ambos paneles
-    const sync = (fn: () => void) => () => {
-      if (rafId) return
-      rafId = requestAnimationFrame(() => {
-        rafId = null
-        if (isScrollingRef.current) {
-          isScrollingRef.current = false
-          return
-        }
-        isScrollingRef.current = true
-        fn()
-        setTimeout(() => { isScrollingRef.current = false }, 50)
-      })
-    }
+    // Guarda de eco por panel: un scroll programático arma el flag del panel
+    // destino; su evento resultante se consume aquí sin re-sincronizar. Como el
+    // flag solo se arma cuando scrollTop cambió de verdad, no se queda pegado
+    // comiéndose scrolls reales del usuario (el bug del planteamiento anterior).
+    let suppressEditor = false
+    let suppressPreview = false
 
-    const onEditorScroll = sync(editorToPreview)
-    const onPreviewScroll = sync(previewToEditor)
+    const onEditorScroll = () => {
+      if (suppressEditor) { suppressEditor = false; return }
+      if (rafId) cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => { rafId = null; editorToPreview() })
+    }
+    const onPreviewScroll = () => {
+      if (suppressPreview) { suppressPreview = false; return }
+      if (rafId) cancelAnimationFrame(rafId)
+      rafId = requestAnimationFrame(() => { rafId = null; previewToEditor() })
+    }
     editorDOM.addEventListener('scroll', onEditorScroll, { passive: true })
     previewDOM.addEventListener('scroll', onPreviewScroll, { passive: true })
 

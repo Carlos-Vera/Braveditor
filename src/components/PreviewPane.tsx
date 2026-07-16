@@ -290,9 +290,14 @@ export const PreviewPane = forwardRef<HTMLDivElement, PreviewPaneProps>(
       if (mermaidCodes.length === 0) return
 
       const renderAll = async () => {
-        const codesArray = Array.from(mermaidCodes)
-        for (let i = 0; i < codesArray.length; i++) {
-          const codeEl = codesArray[i]
+        // Paso 1: sustituir cada bloque de código por un skeleton de inmediato
+        // para no mostrar el código mermaid en crudo mientras renderiza (que es
+        // asíncrono y secuencial). El data-source-line se conserva para que el
+        // scroll sincronizado tenga anclas estables desde ya.
+        const jobs: { wrapper: HTMLElement; definition: string; i: number }[] = []
+        Array.from(mermaidCodes).forEach((codeEl, i) => {
+          const pre = codeEl.closest('pre')
+          if (!pre) return
           let definition = codeEl.textContent || ''
           // El renderer ER de mermaid 11 aplana el diagrama con su TB por
           // defecto; LR lo ordena en columnas (como las extensiones de
@@ -300,17 +305,23 @@ export const PreviewPane = forwardRef<HTMLDivElement, PreviewPaneProps>(
           if (/\berDiagram\b/.test(definition) && !/^\s*direction\s+(TB|BT|LR|RL)\b/m.test(definition)) {
             definition = definition.replace(/\berDiagram\b/, 'erDiagram\ndirection LR')
           }
-          const pre = codeEl.closest('pre')
-          if (!pre) continue
 
+          const wrapper = document.createElement('div')
+          wrapper.className = 'mermaid-diagram mermaid-loading'
+          const sourceLine = pre.getAttribute('data-source-line')
+          if (sourceLine) wrapper.setAttribute('data-source-line', sourceLine)
+          const skeleton = document.createElement('div')
+          skeleton.className = 'mermaid-skeleton'
+          wrapper.appendChild(skeleton)
+          pre.parentNode?.replaceChild(wrapper, pre)
+          jobs.push({ wrapper, definition, i })
+        })
+
+        // Paso 2: renderizar y rellenar cada skeleton con su SVG
+        for (const { wrapper, definition, i } of jobs) {
           try {
             const id = `mermaid-graph-${++mermaidIdCounter}-${i}`
             const { svg } = await mermaid.render(id, definition)
-
-            const wrapper = document.createElement('div')
-            wrapper.className = 'mermaid-diagram'
-            const sourceLine = pre.getAttribute('data-source-line')
-            if (sourceLine) wrapper.setAttribute('data-source-line', sourceLine)
 
             const toolbar = document.createElement('div')
             toolbar.className = 'mermaid-diagram-toolbar'
@@ -326,11 +337,13 @@ export const PreviewPane = forwardRef<HTMLDivElement, PreviewPaneProps>(
             content.className = 'mermaid-diagram-content'
             content.innerHTML = svg
 
-            wrapper.appendChild(toolbar)
-            wrapper.appendChild(content)
-            pre.parentNode?.replaceChild(wrapper, pre)
+            wrapper.classList.remove('mermaid-loading')
+            wrapper.replaceChildren(toolbar, content)
           } catch (err) {
             console.error('Mermaid render error:', err)
+            wrapper.classList.remove('mermaid-loading')
+            wrapper.classList.add('mermaid-error')
+            wrapper.textContent = t('previewDiagramError')
           }
         }
       }
